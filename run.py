@@ -1,28 +1,30 @@
 import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import os
 import re
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
-ui = uic.loadUiType('login.ui')[0] # Call ui file
+ui_path = os.getcwd() + "\login.ui"
+ui = uic.loadUiType(ui_path)[0] # Call ui file
 
 class LoginWindow(QMainWindow, ui):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('src/gui/icon.ico'))
+        # self.setWindowIcon(QIcon('src/gui/icon.ico'))
 
         # File Management Buttons
         self.login_button.clicked.connect(self.login)
 
     def login(self) :
         if self.login_id.text() == "" :
-            QMessageBox.information(self, 'ID Error', 'Please Type Your ID', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, '로그인', '학번을 입력해주세요.', QMessageBox.Ok, QMessageBox.Ok)
         elif self.login_pw.text() == "" :
-            QMessageBox.information(self, 'Password Error', 'Please Type Your Password', QMessageBox.Ok, QMessageBox.Ok)
+            QMessageBox.information(self, '로그인', '비밀번호를 입력해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
         else :
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
@@ -57,9 +59,9 @@ class LoginWindow(QMainWindow, ui):
             for i in range(class_count) :
                 class_all.append([class_name[i], class_url[i]])
             if class_all == [] :
-                QMessageBox.warning(self, 'Login Error', 'Login Fail.\nPlease Check your ID  & Password', QMessageBox.Ok, QMessageBox.Ok)
+                QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
             else :
-                QMessageBox.information(self, 'Login', 'Login Success\n모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
+                QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
                 driver.get(notice_url)
                 html = driver.page_source
@@ -121,13 +123,13 @@ class LoginWindow(QMainWindow, ui):
                 self.management.show()
                 
                 self.close()
-
-ui_main = uic.loadUiType('main.ui')[0]
+ui_main_path = os.getcwd() + "\main.ui"
+ui_main = uic.loadUiType(ui_main_path)[0]
 class MainWindow(QMainWindow, ui_main):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('res/icon.ico'))
+        # self.setWindowIcon(QIcon('res/icon.ico'))
         self.notice_listWidget.itemDoubleClicked.connect(self.notice_chkItemDoubleClicked)
         self.class_listWidget.itemDoubleClicked.connect(self.class_chkItemDoubleClicked)
 

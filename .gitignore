@@ -4,3 +4,6 @@ tt.py
 yy.py
 .vscode
 __pycache__
+build
+dist
+*.spec

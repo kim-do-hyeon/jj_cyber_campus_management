@@ -138,6 +138,9 @@ class MainWindow(QMainWindow, ui_main):
         self.notice_listWidget.itemDoubleClicked.connect(self.notice_chkItemDoubleClicked)
         self.class_listWidget.itemDoubleClicked.connect(self.class_chkItemDoubleClicked)
 
+        # Logo
+        self.logo_label.setPixmap(QPixmap('src\logo.jpg'))
+
         #Get User Infomormation
         get_user_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[0]
         driver.get(get_user_url)

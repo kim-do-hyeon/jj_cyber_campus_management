@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1054</width>
-    <height>529</height>
+    <width>1150</width>
+    <height>519</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1150</width>
+    <height>519</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1150</width>
+    <height>519</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Cyber Campus Manage Tool</string>
@@ -20,7 +32,7 @@
       <x>10</x>
       <y>260</y>
       <width>150</width>
-      <height>251</height>
+      <height>250</height>
      </rect>
     </property>
    </widget>
@@ -29,8 +41,8 @@
      <rect>
       <x>850</x>
       <y>30</y>
-      <width>200</width>
-      <height>481</height>
+      <width>290</width>
+      <height>480</height>
      </rect>
     </property>
    </widget>
@@ -39,7 +51,7 @@
      <rect>
       <x>850</x>
       <y>10</y>
-      <width>200</width>
+      <width>290</width>
       <height>12</height>
      </rect>
     </property>
@@ -72,7 +84,7 @@
       <x>170</x>
       <y>30</y>
       <width>670</width>
-      <height>481</height>
+      <height>480</height>
      </rect>
     </property>
    </widget>
@@ -96,7 +108,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>130</y>
       <width>40</width>
       <height>20</height>
      </rect>
@@ -112,7 +124,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>160</y>
       <width>40</width>
       <height>20</height>
      </rect>
@@ -128,7 +140,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>190</y>
       <width>40</width>
       <height>20</height>
      </rect>
@@ -144,7 +156,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>30</y>
+      <y>130</y>
       <width>110</width>
       <height>20</height>
      </rect>
@@ -157,7 +169,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>60</y>
+      <y>160</y>
       <width>110</width>
       <height>20</height>
      </rect>
@@ -170,7 +182,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>90</y>
+      <y>190</y>
       <width>110</width>
       <height>20</height>
      </rect>
@@ -183,13 +195,29 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>110</y>
       <width>150</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>사용자 정보</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="logo_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>150</width>
+      <height>70</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>LOGO</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

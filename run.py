@@ -86,8 +86,8 @@ class LoginWindow(QMainWindow, ui):
                     timeago = (soup.find_all(class_="timeago")[i].get_text())
                     message = str(soup.find_all(class_="media-body")[i])
                     message = message.partition("<p>")[-1].replace("</p></div>","")
-                    notice_value.append([name, timeago, message])
-                
+                    notice_value.append([name, timeago, message, notice_url_value[i]])
+  
                 global class_id
                 class_id = []
                 global class_detail
@@ -225,8 +225,19 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
     def notice_chkItemDoubleClicked(self) :
-        title = self.notice_listWidget.currentItem().text()
-        message = notice_value[self.notice_listWidget.currentRow()][2]
+        
+        get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
+        driver.get(get_notice_url)
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        try : 
+            title = soup.find_all(class_="subject")[0].get_text()
+            message = soup.find_all(class_="text_to_html")[0].get_text()
+            message = message.replace(".", ".\n")
+        except :
+            title = self.notice_listWidget.currentItem().text()
+            message = notice_value[self.notice_listWidget.currentRow()][2]
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_chkItemDoubleClicked(self) :

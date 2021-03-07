@@ -9,7 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 
-ui_path = os.getcwd() + "\src\login.ui"
+ui_path = "src/login.ui"
 ui = uic.loadUiType(ui_path)[0] # Call ui file
 
 class LoginWindow(QMainWindow, ui):
@@ -140,7 +140,7 @@ class LoginWindow(QMainWindow, ui):
                 self.management.show()
                 self.close()
 
-ui_main_path = os.getcwd() + "\src\main.ui"
+ui_main_path = "src/main.ui"
 ui_main = uic.loadUiType(ui_main_path)[0]
 class MainWindow(QMainWindow, ui_main):
     def __init__(self):

@@ -22,29 +22,37 @@ class LoginWindow(QMainWindow, ui):
         self.login_button.clicked.connect(self.login)
 
     def login(self) :
-        if self.login_id.text() == "" :
+        if self.login_id.text() == "" : # school id is blank
             QMessageBox.information(self, '로그인', '학번을 입력해주세요.', QMessageBox.Ok, QMessageBox.Ok)
-        elif self.login_pw.text() == "" :
+        elif self.login_pw.text() == "" : # passwrod is blank
             QMessageBox.information(self, '로그인', '비밀번호를 입력해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
-        else :
+        else : # login
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
+
             options = webdriver.ChromeOptions()
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
             options.add_argument("disable-gpu")
+
             global driver
             driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
+
             login_url = "https://cyber.jj.ac.kr/login.php"
+            class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
+
+            # login Page
             driver.get(login_url)
             driver.find_element_by_name('username').send_keys(student_id) # Send ID
             driver.find_element_by_name('password').send_keys(student_pw) # Send Password
             driver.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/div/div/div[1]/div[1]/div[1]/form/div[2]/input').click() # Button Click
 
-            class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
+            # user info Page
             driver.get(class_url)
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
+
+            # Get Class Course Name
             class_url_html = str(soup.find_all(class_="coursefullname"))
             class_count = len(soup.find_all(class_='coursefullname'))
             class_name = []
@@ -56,11 +64,14 @@ class LoginWindow(QMainWindow, ui):
 
             for a in class_url_soup.find_all('a', href=True):
                 class_url.append(a['href'])
+            
             global class_all
             class_all = []
+
             for i in range(class_count) :
                 class_all.append([class_name[i], class_url[i]])
-            if class_all == [] :
+            
+            if class_all == [] : # 강의가 없다면 로그인 실패
                 QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
             else :
                 QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
@@ -74,14 +85,16 @@ class LoginWindow(QMainWindow, ui):
                 temp = str(soup.find_all(class_="well wellnopadding"))
                 temp = BeautifulSoup(temp)
                 notice_url_value = []
+
                 global notice_value
                 notice_value = []
-                for a in temp.find_all('a', href=True):
-                    notice_url_value.append(a['href'])
-                notice_url_value.pop()
-                notice_url_count = len(notice_url_value)
 
-                for i in range(notice_url_count):
+                for a in temp.find_all('a', href=True):
+                    notice_url_value.append(a['href'])\
+                
+                notice_url_value.pop()
+
+                for i in range(len(notice_url_value)):
                     name = (soup.find_all(class_="media-heading")[i].get_text())
                     timeago = (soup.find_all(class_="timeago")[i].get_text())
                     message = str(soup.find_all(class_="media-body")[i])
@@ -89,12 +102,15 @@ class LoginWindow(QMainWindow, ui):
                     notice_value.append([name, timeago, message, notice_url_value[i]])
   
                 global class_id
-                class_id = []
                 global class_detail
+                class_id = []
                 class_detail = []
+
+                # Get class id
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
 
+                # 강의 정보 (수강 시간 등)
                 for i in range(len(class_id)) :
                     class_name = class_all[i][0]
                     class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[i]
@@ -107,20 +123,16 @@ class LoginWindow(QMainWindow, ui):
                         try :
                             regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
                             title = regex.findall(a)[0]
-                            # print(title)
 
                             regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
                             need_time = regex.findall(a)[0]
-                            # print(need_time)
 
                             try :
                                 regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
                                 my_time = regex.findall(a)[0]
-
-                                # print(my_time)
                             except :
                                 my_time = "미수강"
-                                # print("미수강")
+
                             class_detail.append([class_name, title, need_time, my_time])
                         except :
                             break
@@ -198,25 +210,10 @@ class MainWindow(QMainWindow, ui_main):
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
-
- 
         self.tableWidget.setColumnWidth(0, 150)
         self.tableWidget.setColumnWidth(1, 340)
         self.tableWidget.setColumnWidth(2, 70)
         self.tableWidget.setColumnWidth(3, 70)
-
-        # Column Width Auto Manage
-        # header = self.tableWidget.horizontalHeader()
-        # twidth = header.width()
-        # width = []
-        # for column in range(header.count()):
-        #     header.setSectionResizeMode(column, QHeaderView.ResizeToContents)
-        #     width.append(header.sectionSize(column))
-        
-        # wfactor = twidth / sum(width)
-        # for column in range(header.count()):
-        #     header.setSectionResizeMode(column, QHeaderView.Interactive)
-        #     header.resizeSection(column, width[column]*wfactor)
             
         for i in range(len(class_detail)):
             for j in range(4):
@@ -225,19 +222,21 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
     def notice_chkItemDoubleClicked(self) :
-        
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
         driver.get(get_notice_url)
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        
+
         try : 
             title = soup.find_all(class_="subject")[0].get_text()
-            message = soup.find_all(class_="text_to_html")[0].get_text()
+            time = (soup.select("#region-main > div > div > div > div.well > div:nth-child(2) > div.date")[0].get_text())
+            time = time.replace("\n", "").replace(" ", "").replace("\t","")
+            time = (time[:14] + " " + time[14:])
+            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + " (" + time + ")" + "\n"  + str(soup.find_all(class_="text_to_html")[0].get_text())
             message = message.replace(".", ".\n")
         except :
             title = self.notice_listWidget.currentItem().text()
-            message = notice_value[self.notice_listWidget.currentRow()][2]
+            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_chkItemDoubleClicked(self) :

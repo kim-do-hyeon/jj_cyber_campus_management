@@ -147,8 +147,9 @@ class MainWindow(QMainWindow, ui_main):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
-        self.notice_listWidget.itemDoubleClicked.connect(self.notice_chkItemDoubleClicked)
-        self.class_listWidget.itemDoubleClicked.connect(self.class_chkItemDoubleClicked)
+        self.notice_listWidget.itemDoubleClicked.connect(self.notice_ItemDoubleClicked)
+        self.class_listWidget.itemDoubleClicked.connect(self.class_ItemDoubleClicked)
+        # self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
 
         # Logo
         self.logo_label.setPixmap(QPixmap('src\logo.jpg'))
@@ -158,17 +159,17 @@ class MainWindow(QMainWindow, ui_main):
         driver.get(get_user_url)
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-
+        # School user id
         school_id = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(1) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         school_id = regex.findall(school_id)[0]
         self.school_number_line.setText(str(school_id))
-
+        # User Name
         name = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(2) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         name = regex.findall(name)[0]
         self.name_line.setText(str(name))
-
+        # User Phone Number
         phone_number = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(3) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         phone_number = regex.findall(phone_number)[0]
@@ -205,8 +206,6 @@ class MainWindow(QMainWindow, ui_main):
         item.setText(_translate("MainWindow", "인정 시간"))
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "들은 시간"))
-        # item = self.tableWidget.horizontalHeaderItem(4)
-        # item.setText(_translate("MainWindow", "기간"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
@@ -218,15 +217,15 @@ class MainWindow(QMainWindow, ui_main):
         for i in range(len(class_detail)):
             for j in range(4):
                 item = self.tableWidget.item(i, j)
+                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 item.setText(_translate("MainWindow", str(class_detail[i][j])))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
-    def notice_chkItemDoubleClicked(self) :
+    def notice_ItemDoubleClicked(self) :
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
         driver.get(get_notice_url)
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-
         try : 
             title = soup.find_all(class_="subject")[0].get_text()
             time = (soup.select("#region-main > div > div > div > div.well > div:nth-child(2) > div.date")[0].get_text())
@@ -239,7 +238,7 @@ class MainWindow(QMainWindow, ui_main):
             message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
-    def class_chkItemDoubleClicked(self) :
+    def class_ItemDoubleClicked(self) :
         import webbrowser
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]

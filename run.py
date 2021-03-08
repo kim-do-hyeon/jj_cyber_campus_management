@@ -117,8 +117,8 @@ class LoginWindow(QMainWindow, ui):
                     driver.get(class_process_url)
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
-                    for i in range(1,10) :
-                        v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(i) + ')'
+                    for j in range(1,10) :
+                        v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
                         a = str(soup.select(v))
                         try :
                             regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
@@ -133,7 +133,7 @@ class LoginWindow(QMainWindow, ui):
                             except :
                                 my_time = "미수강"
 
-                            class_detail.append([class_name, title, need_time, my_time])
+                            class_detail.append([class_name, title, need_time, my_time, class_process_url])
                         except :
                             break
                 self.management = MainWindow()
@@ -149,7 +149,7 @@ class MainWindow(QMainWindow, ui_main):
         self.setWindowIcon(QIcon('src\icon.ico'))
         self.notice_listWidget.itemDoubleClicked.connect(self.notice_ItemDoubleClicked)
         self.class_listWidget.itemDoubleClicked.connect(self.class_ItemDoubleClicked)
-        # self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
+        self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
 
         # Logo
         self.logo_label.setPixmap(QPixmap('src\logo.jpg'))
@@ -243,7 +243,6 @@ class MainWindow(QMainWindow, ui_main):
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]
         webbrowser.open(url)
-
 def main():
     app = QApplication(sys.argv)
     window = LoginWindow()

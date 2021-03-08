@@ -1,7 +1,7 @@
 # jj_cyber_management
 
 # Run
-* src 폴더 내의 run.exe 파일 실행
+* share 폴더 내의 run.exe 파일 실행
 
 # Preview
 ![image](https://user-images.githubusercontent.com/21982942/110329023-6cc48900-805f-11eb-897f-1e50b778d276.png)

@@ -136,6 +136,21 @@ class LoginWindow(QMainWindow, ui):
                             class_detail.append([class_name, title, need_time, my_time, class_process_url])
                         except :
                             break
+                # 강의 시청 링크
+                video = []
+                for i in range(len(class_id)) :
+                    video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
+                    driver.get(video_url)
+                    html = driver.page_source
+                    soup = BeautifulSoup(html, 'html.parser')
+                    for j in range(100) :
+                        html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
+                        url_soup = BeautifulSoup(html_1)
+                        for a in url_soup.find_all('a', href=True):
+                            video.append([class_id[i], a['href']])
+                for i in range(len(class_detail)) :
+                    class_detail[i].append(video[i])
+
                 self.management = MainWindow()
                 self.management.show()
                 self.close()
@@ -243,6 +258,31 @@ class MainWindow(QMainWindow, ui_main):
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]
         webbrowser.open(url)
+    
+    def table_ItemDoubleClicked(self) :
+        row = self.tableWidget.currentRow()
+        column = self.tableWidget.currentColumn()
+        msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
+        need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
+        my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
+        
+        if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
+            reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
+                import webbrowser
+                webbrowser.open(url)
+            else:
+                return
+        else :
+            reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
+                import webbrowser
+                webbrowser.open(url)
+            else:
+                return
+
 def main():
     app = QApplication(sys.argv)
     window = LoginWindow()

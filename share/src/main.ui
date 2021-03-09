@@ -223,6 +223,48 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QPushButton" name="assign_button">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>250</y>
+      <width>290</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>과제</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="new_message_label_2">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>230</y>
+      <width>290</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>과제 확인</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="exit_button">
+    <property name="geometry">
+     <rect>
+      <x>1059</x>
+      <y>472</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>종료</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

@@ -151,6 +151,40 @@ class LoginWindow(QMainWindow, ui):
                 for i in range(len(class_detail)) :
                     class_detail[i].append(video[i])
 
+                # 과제 확인
+                global assign
+                assign = []
+                for i in range(len(class_id)) :
+                    class_name = class_all[i][0]
+                    class_assign_url = "http://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
+                    driver.get(class_assign_url)
+                    html = driver.page_source
+                    soup = BeautifulSoup(html, 'html.parser')
+                    temp = (soup.select("#region-main > div > table > tbody > tr:nth-child(1)"))
+                    temp1 = []
+                    temp2 = []
+                    for i in soup.select("#region-main > div > table > tbody > tr:nth-child(1)") :
+                        string = i.text.split("\n")
+                        string.pop()
+                        del string[0]
+                        temp1 = (string)
+                    temp = (soup.select("#region-main > div > table > tbody > tr.lastrow"))
+                    for i in soup.select("#region-main > div > table > tbody > tr.lastrow") :
+                        string = i.text.split("\n")
+                        string.pop()
+                        del string[0]
+                        temp2 = (string)
+                    if temp1 == [] :
+                        continue
+                    else :
+                        temp1.insert(0, class_name)
+                        temp2.insert(0,class_name)
+                        if temp1 == temp2 :
+                            assign.append(temp1)
+                        else :
+                            assign.append(temp1)
+                            assign.append(temp2)
+
                 self.management = MainWindow()
                 self.management.show()
                 self.close()
@@ -235,6 +269,46 @@ class MainWindow(QMainWindow, ui_main):
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 item.setText(_translate("MainWindow", str(class_detail[i][j])))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
+
+        _translate = QCoreApplication.translate
+        self.assign_tableWidget.setColumnCount(6)
+        self.assign_tableWidget.setRowCount(len(assign))
+        for i in range(len(assign)):
+            item = QTableWidgetItem()
+            self.assign_tableWidget.setVerticalHeaderItem(i, item)
+        for i in range(6):
+            item = QTableWidgetItem()
+            self.assign_tableWidget.setHorizontalHeaderItem(i, item)
+        item = QTableWidgetItem()
+        for i in range(len(assign)):
+            for j in range(6):
+                self.assign_tableWidget.setItem(i, j, item)
+                item = QTableWidgetItem()
+        for i in range(len(assign)) :
+            item = self.assign_tableWidget.verticalHeaderItem(i)
+            item.setText(_translate("MainWindow", str(i)))
+        item = self.assign_tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "강의 이름"))
+        item = self.assign_tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "주차"))
+        item = self.assign_tableWidget.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "과제명"))
+        item = self.assign_tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "종료일"))
+        item = self.assign_tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "제출여부"))
+        item = self.assign_tableWidget.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "성적"))
+        __sortingEnabled = self.assign_tableWidget.isSortingEnabled()
+        self.assign_tableWidget.setSortingEnabled(False)
+
+            
+        for i in range(len(assign)):
+            for j in range(6):
+                item = self.assign_tableWidget.item(i, j)
+                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
+                item.setText(_translate("MainWindow", str(assign[i][j])))
+        self.assign_tableWidget.setSortingEnabled(__sortingEnabled)
 
     def notice_ItemDoubleClicked(self) :
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]

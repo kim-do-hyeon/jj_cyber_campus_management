@@ -1,4 +1,4 @@
-# jj_cyber_management
+# jj_cyber_campus_management
 
 # Run
 * <b>share 폴더 내의 run.exe 파일 실행</b>

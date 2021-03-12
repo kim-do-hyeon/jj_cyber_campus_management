@@ -9,6 +9,16 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 
+def timestamp():
+    import datetime
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+def log(message): # LOG
+            message = timestamp() + ' > ' + message
+            print(message, file=log_file)
+
+log_file = open("log.txt", 'w', -1, 'utf-8')
+log("*** Start Program ***")
 ui_path = "src/login.ui"
 ui = uic.loadUiType(ui_path)[0] # Call ui file
 
@@ -24,35 +34,49 @@ class LoginWindow(QMainWindow, ui):
     def login(self) :
         if self.login_id.text() == "" : # school id is blank
             QMessageBox.information(self, '로그인', '학번을 입력해주세요.', QMessageBox.Ok, QMessageBox.Ok)
+            log("Login > School id is blank")
         elif self.login_pw.text() == "" : # passwrod is blank
             QMessageBox.information(self, '로그인', '비밀번호를 입력해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
+            log("Login > School Password is blank")
         else : # login
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
-
+            log("Login > Try Login")
+            
             options = webdriver.ChromeOptions()
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
             options.add_argument("disable-gpu")
+            log("Webdriver > headless, window-size=1920x1080, disable-gpu options")
 
             global driver
-            driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
-
+            try : 
+                driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
+                log("Webdriver > Try to run Chrome")
+            except :
+                QMessageBox.warning(self, 'File Error', 'chromedriver.exe 파일을 찾을수 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
+                log("Webdriver > Does not exist chromedriver.exe")
+                return
+            
             login_url = "https://cyber.jj.ac.kr/login.php"
             class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
 
             # login Page
             driver.get(login_url)
+            log("Webdriver > Access Url > https://cyber.jj.ac.kr/login.php")
             driver.find_element_by_name('username').send_keys(student_id) # Send ID
             driver.find_element_by_name('password').send_keys(student_pw) # Send Password
             driver.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/div/div/div[1]/div[1]/div[1]/form/div[2]/input').click() # Button Click
+            log("Webdriver > Try to Login")
 
             # user info Page
             driver.get(class_url)
+            log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubion/user/")
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
 
             # Get Class Course Name
+            log("*** Get Class Course Name ***")
             class_url_html = str(soup.find_all(class_="coursefullname"))
             class_count = len(soup.find_all(class_='coursefullname'))
             class_name = []
@@ -70,14 +94,20 @@ class LoginWindow(QMainWindow, ui):
 
             for i in range(class_count) :
                 class_all.append([class_name[i], class_url[i]])
-            
+
+            for i in range(len(class_all)) :
+                log("Webdriver > Parse > Class > " + str(class_all[i]))
+
             if class_all == [] : # 강의가 없다면 로그인 실패
                 QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
+                log("*** Login Fail ***")
             else :
                 QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
-                
+                log("*** Login Success ***")
+                log("*** Get Notice ***")
                 notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
                 driver.get(notice_url)
+                log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubnotification/")
                 html = driver.page_source
                 soup = BeautifulSoup(html, 'html.parser')
 
@@ -90,7 +120,7 @@ class LoginWindow(QMainWindow, ui):
                 notice_value = []
 
                 for a in temp.find_all('a', href=True):
-                    notice_url_value.append(a['href'])\
+                    notice_url_value.append(a['href'])
                 
                 notice_url_value.pop()
 
@@ -99,8 +129,9 @@ class LoginWindow(QMainWindow, ui):
                     timeago = (soup.find_all(class_="timeago")[i].get_text())
                     message = str(soup.find_all(class_="media-body")[i])
                     message = message.partition("<p>")[-1].replace("</p></div>","")
+                    log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
                     notice_value.append([name, timeago, message, notice_url_value[i]])
-  
+
                 global class_id
                 global class_detail
                 class_id = []
@@ -111,10 +142,12 @@ class LoginWindow(QMainWindow, ui):
                     class_id.append(class_all[i][1].split("?")[1][3:])
 
                 # 강의 정보 (수강 시간 등)
+                log("*** Get Class Detail ***")
                 for i in range(len(class_id)) :
                     class_name = class_all[i][0]
                     class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[i]
                     driver.get(class_process_url)
+                    log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
                     for j in range(1,50) :
@@ -132,21 +165,25 @@ class LoginWindow(QMainWindow, ui):
                                 my_time = regex.findall(a)[0]
                             except :
                                 my_time = "미수강"
-
+                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, class_process_url]))
                             class_detail.append([class_name, title, need_time, my_time, class_process_url])
                         except :
+                            log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             break
                 # 강의 시청 링크
+                log("*** Get Watch Video Link ***")
                 video = []
                 for i in range(len(class_id)) :
                     video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
                     driver.get(video_url)
+                    log("Webdriver > Access Url > " + str(video_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
                     for j in range(100) :
                         html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
                         url_soup = BeautifulSoup(html_1)
                         for a in url_soup.find_all('a', href=True):
+                            log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
                             video.append([class_id[i], a['href']])
                 for i in range(len(class_detail)) :
                     class_detail[i].append(video[i])
@@ -159,6 +196,7 @@ ui_main_path = "src/main.ui"
 ui_main = uic.loadUiType(ui_main_path)[0]
 class MainWindow(QMainWindow, ui_main):
     def __init__(self):
+        log("*** Open MainWindow ***")
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
@@ -176,6 +214,8 @@ class MainWindow(QMainWindow, ui_main):
         #Get User Infomormation
         get_user_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[0]
         driver.get(get_user_url)
+        log("Webdriver > Access Url > " + str(get_user_url))
+        
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         # School user id
@@ -183,16 +223,21 @@ class MainWindow(QMainWindow, ui_main):
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         school_id = regex.findall(school_id)[0]
         self.school_number_line.setText(str(school_id))
+        log("Webdriver > Get Informtaion > " + str(school_id))
+
         # User Name
         name = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(2) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         name = regex.findall(name)[0]
         self.name_line.setText(str(name))
+        log("Webdriver > Get Informtaion > " + str(name))
+
         # User Phone Number
         phone_number = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(3) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         phone_number = regex.findall(phone_number)[0]
         self.phone_number_line.setText(str(phone_number))
+        log("Webdriver > Get Informtaion > " + str(phone_number))
 
         for i in range(len(class_all)) :
             self.class_listWidget.addItem(class_all[i][0])
@@ -241,6 +286,7 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
     def assign(self):
+        log("*** Get Assignment ***")
         QMessageBox.information(self, "과제 확인", "과제를 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
         global assign
         assign = []
@@ -248,6 +294,7 @@ class MainWindow(QMainWindow, ui_main):
             class_name = class_all[i][0]
             class_assign_url = "http://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
             driver.get(class_assign_url)
+            log("Webdriver > Access Url > " + str(class_assign_url))
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
             temp = (soup.select("#region-main > div > table > tbody > tr:nth-child(1)"))
@@ -271,15 +318,18 @@ class MainWindow(QMainWindow, ui_main):
                 temp2.insert(0,class_name)
                 if temp1 == temp2 :
                     assign.append(temp1)
+                    log("Webdriver > Parse > Get Assignment > " + str(temp1))
                 else :
                     assign.append(temp1)
                     assign.append(temp2)
+                    log("Webdriver > Parse > Get Assignment > " + str([temp1, temp2]))
         self.assignment = AssignWindow()
         self.assignment.show()
 
     def notice_ItemDoubleClicked(self) :
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
         driver.get(get_notice_url)
+        log("DoubleClick > Notice > " + str([notice_value[self.notice_listWidget.currentRow()][0], notice_value[self.notice_listWidget.currentRow()][1], notice_value[self.notice_listWidget.currentRow()][2], notice_value[self.notice_listWidget.currentRow()][3]]))
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         try : 
@@ -298,7 +348,9 @@ class MainWindow(QMainWindow, ui_main):
         import webbrowser
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]
+        log("DoubleClick > Class > " + str([row, url]))
         webbrowser.open(url)
+        log("DoubleClick > Class > Open > " + str(url))
     
     def table_ItemDoubleClicked(self) :
         row = self.tableWidget.currentRow()
@@ -306,31 +358,39 @@ class MainWindow(QMainWindow, ui_main):
         msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
         need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
         my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
-        
+        log("DoubleClick > Class Detail > " + str([msgbox_title, need_time, my_time]))
         if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
             reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
+                log("DoubleClick > Class Detail > Question > Y")
                 url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
                 import webbrowser
                 webbrowser.open(url)
+                log("DoubleClick > Class Detail > Open > " + str(url))
             else:
+                log("DoubleClick > Class Detail > Question > N")
                 return
         else :
             reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
+                log("DoubleClick > Class Detail > Question > Y")
                 url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
                 import webbrowser
                 webbrowser.open(url)
+                log("DoubleClick > Class Detail > Open > " + str(url))
             else:
+                log("DoubleClick > Class Detail > Question > N")
                 return
 
     def exit(self) :
+        log("*** Exit Program ***")
         self.close()
 
 ui_assign_path = "src/assign.ui"
 ui_assign = uic.loadUiType(ui_assign_path)[0]
 class AssignWindow(QMainWindow, ui_assign):
     def __init__(self):
+        log("*** Open Assinment Window ***")
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
@@ -377,6 +437,7 @@ class AssignWindow(QMainWindow, ui_assign):
         self.assign_tableWidget.setSortingEnabled(__sortingEnabled)
 
     def exit(self) :
+        log("*** Exit Assignment Window ***")
         self.close()
 
 def main():

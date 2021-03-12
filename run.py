@@ -207,6 +207,7 @@ class MainWindow(QMainWindow, ui_main):
 
         # Button
         self.assign_button.clicked.connect(self.assign)
+        self.error_send.clicked.connect(self.error)
         self.exit_button.clicked.connect(self.exit)
 
         # Logo
@@ -222,23 +223,26 @@ class MainWindow(QMainWindow, ui_main):
         # School user id
         school_id = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(1) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
-        school_id = regex.findall(school_id)[0]
-        self.school_number_line.setText(str(school_id))
-        log("Webdriver > Get Informtaion > " + str(school_id))
+        global user_school_id
+        user_school_id = regex.findall(school_id)[0]
+        self.school_number_line.setText(str(user_school_id))
+        log("Webdriver > Get Informtaion > " + str(user_school_id))
 
         # User Name
         name = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(2) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
-        name = regex.findall(name)[0]
-        self.name_line.setText(str(name))
-        log("Webdriver > Get Informtaion > " + str(name))
+        global user_name
+        user_name = regex.findall(name)[0]
+        self.name_line.setText(str(user_name))
+        log("Webdriver > Get Informtaion > " + str(user_name))
 
         # User Phone Number
         phone_number = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(3) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
-        phone_number = regex.findall(phone_number)[0]
-        self.phone_number_line.setText(str(phone_number))
-        log("Webdriver > Get Informtaion > " + str(phone_number))
+        global user_phone_number
+        user_phone_number = regex.findall(phone_number)[0]
+        self.phone_number_line.setText(str(user_phone_number))
+        log("Webdriver > Get Informtaion > " + str(user_phone_number))
 
         for i in range(len(class_all)) :
             self.class_listWidget.addItem(class_all[i][0])
@@ -276,8 +280,8 @@ class MainWindow(QMainWindow, ui_main):
 
         self.tableWidget.setColumnWidth(0, 150)
         self.tableWidget.setColumnWidth(1, 340)
-        self.tableWidget.setColumnWidth(2, 70)
-        self.tableWidget.setColumnWidth(3, 70)
+        self.tableWidget.setColumnWidth(2, 65)
+        self.tableWidget.setColumnWidth(3, 65)
             
         for i in range(len(class_detail)):
             for j in range(4):
@@ -326,6 +330,11 @@ class MainWindow(QMainWindow, ui_main):
                     log("Webdriver > Parse > Get Assignment > " + str([temp1, temp2]))
         self.assignment = AssignWindow()
         self.assignment.show()
+
+    def error(self) :
+        self.error_window = ErrorWindow()
+        self.error_window.show()
+
 
     def notice_ItemDoubleClicked(self) :
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
@@ -439,6 +448,75 @@ class AssignWindow(QMainWindow, ui_assign):
     def exit(self) :
         log("*** Exit Assignment Window ***")
         self.close()
+
+ui_error_path = "src/error.ui"
+ui_error = uic.loadUiType(ui_error_path)[0]
+class ErrorWindow(QMainWindow, ui_error):
+    def __init__(self):
+        log("*** Open Error Report Window ***")
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('src\icon.ico'))
+
+        # Button
+        self.send_button.clicked.connect(self.send)
+
+        # radio
+        self.writer_open_radio.clicked.connect(self.groupboxRadFunction)
+        self.writer_close_radio.clicked.connect(self.groupboxRadFunction)
+    
+    def groupboxRadFunction(self) :
+        global Disclosure_status
+        if self.writer_open_radio.isChecked() :
+            Disclosure_status = 1
+            log("Error Report > Disclosure_status = 1")
+        elif self.writer_close_radio.isChecked() :
+            Disclosure_status = 0
+            log("Error Report > Disclosure_status = 0")
+
+    def send(self) :
+        log("Error Report > Send > Try")
+        title = self.title_message.toPlainText()
+        if title == "" :
+            QMessageBox.information(self, "오류제보", "제목을 입력해주세요.", QMessageBox.Ok, QMessageBox.Ok)
+            log("Error Report > Send > Blank Title")
+            return
+        content = str(self.content_message.toPlainText())
+        if content == "" :
+            QMessageBox.information(self, "오류제보", "내용을 입력해주세요.", QMessageBox.Ok, QMessageBox.Ok)
+            log("Error Report > Send > Blank Content")
+            return
+        
+        try :
+            if Disclosure_status == 1:
+                contact = [user_school_id, user_name, user_phone_number]
+            else :
+                contact = "익명"
+        except :
+            QMessageBox.information(self, "오류제보", "작성자 공개 여부를 체크해주세요.", QMessageBox.Ok, QMessageBox.Ok)
+            log("Error Report > Send > Error Disclosure_status")
+            return
+
+        user_contact = self.contact_message.toPlainText()
+        if user_contact == "" :
+            user_contact = "익명"
+        
+        content = content + "\n\n" + str(contact) + "\n\n" + str(user_contact)
+        try :
+            import smtplib
+            from email.mime.text import MIMEText
+            s = smtplib.SMTP('smtp.gmail.com', 587)
+            s.starttls()
+            s.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
+            msg = MIMEText(content)
+            msg['Subject'] = title
+            s.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
+            s.quit()
+            log("Error Report > Send > Success")
+            QMessageBox.information(self, "오류제보", "오류제보가 정상적으로 처리되었습니다.", QMessageBox.Ok, QMessageBox.Ok)
+        except :
+            log("Error Report > Send > Fail")
+            QMessageBox.information(self, "오류제보", "문제가 발생하였습니다.", QMessageBox.Ok, QMessageBox.Ok)
 
 def main():
     app = QApplication(sys.argv)

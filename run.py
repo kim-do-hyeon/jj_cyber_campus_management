@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import webbrowser
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -345,7 +346,7 @@ class MainWindow(QMainWindow, ui_main):
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_ItemDoubleClicked(self) :
-        import webbrowser
+        
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]
         log("DoubleClick > Class > " + str([row, url]))
@@ -363,8 +364,7 @@ class MainWindow(QMainWindow, ui_main):
             reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 log("DoubleClick > Class Detail > Question > Y")
-                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
-                import webbrowser
+                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')     
                 webbrowser.open(url)
                 log("DoubleClick > Class Detail > Open > " + str(url))
             else:
@@ -375,7 +375,6 @@ class MainWindow(QMainWindow, ui_main):
             if reply == QMessageBox.Yes:
                 log("DoubleClick > Class Detail > Question > Y")
                 url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
-                import webbrowser
                 webbrowser.open(url)
                 log("DoubleClick > Class Detail > Open > " + str(url))
             else:
@@ -395,6 +394,7 @@ class AssignWindow(QMainWindow, ui_assign):
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
 
+        # Button - Exit
         self.exit_button.clicked.connect(self.exit)
 
         _translate = QCoreApplication.translate

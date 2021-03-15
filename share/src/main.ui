@@ -265,6 +265,19 @@
      <string>종료</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="error_send">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>470</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>오류제보</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

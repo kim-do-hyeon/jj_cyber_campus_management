@@ -475,6 +475,15 @@ class ErrorWindow(QMainWindow, ui_error):
             log("Error Report > Disclosure_status = 0")
 
     def send(self) :
+
+        import socket
+        import re, uuid
+        User_Host_Name = socket.gethostname()
+        User_IP_Internal = socket.gethostbyname(socket.gethostname())
+        User_IP_External = socket.gethostbyname(socket.getfqdn())
+        User_Mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+        User_Computer_Information = [User_Host_Name, User_IP_Internal, User_IP_External, User_Mac]
+
         log("Error Report > Send > Try")
         title = self.title_message.toPlainText()
         if title == "" :
@@ -501,7 +510,7 @@ class ErrorWindow(QMainWindow, ui_error):
         if user_contact == "" :
             user_contact = "익명"
         
-        content = content + "\n\n" + str(contact) + "\n\n" + str(user_contact)
+        content = content + "\n\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
         try :
             import smtplib
             from email.mime.text import MIMEText

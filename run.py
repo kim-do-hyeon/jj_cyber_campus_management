@@ -166,8 +166,18 @@ class LoginWindow(QMainWindow, ui):
                                 my_time = regex.findall(a)[0]
                             except :
                                 my_time = "미수강"
-                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, class_process_url]))
-                            class_detail.append([class_name, title, need_time, my_time, class_process_url])
+                            
+                            check_need_time = int(need_time.replace(":",""))
+                            if my_time == "미수강" :
+                                check_my_time = 0
+                            else :
+                                check_my_time = int(my_time.replace(":",""))
+                            if check_my_time > check_need_time :
+                                check = "PASS"
+                            else :
+                                check = "FAIL"
+                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
+                            class_detail.append([class_name, title, need_time, my_time, check])
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             break
@@ -251,17 +261,17 @@ class MainWindow(QMainWindow, ui_main):
             self.notice_listWidget.addItem(notice_value[i][0])
 
         _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(len(class_detail))
         for i in range(len(class_detail)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
-        for i in range(4):
+        for i in range(5):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
         for i in range(len(class_detail)):
-            for j in range(4):
+            for j in range(5):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
         for i in range(len(class_detail)) :
@@ -275,6 +285,8 @@ class MainWindow(QMainWindow, ui_main):
         item.setText(_translate("MainWindow", "인정 시간"))
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "들은 시간"))
+        item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "통과"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
@@ -284,7 +296,7 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setColumnWidth(3, 65)
             
         for i in range(len(class_detail)):
-            for j in range(4):
+            for j in range(5):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 item.setText(_translate("MainWindow", str(class_detail[i][j])))
@@ -460,7 +472,7 @@ class ErrorWindow(QMainWindow, ui_error):
 
         # Button
         self.send_button.clicked.connect(self.send)
-
+        self.include_button.clicked.connect(self.error_file_select)
         # radio
         self.writer_open_radio.clicked.connect(self.groupboxRadFunction)
         self.writer_close_radio.clicked.connect(self.groupboxRadFunction)
@@ -474,8 +486,16 @@ class ErrorWindow(QMainWindow, ui_error):
             Disclosure_status = 0
             log("Error Report > Disclosure_status = 0")
 
-    def send(self) :
+    # Path Select 
+    def error_file_select(self) :
+        dialog = QFileDialog()
+        global file_path
+        file_filter = 'All files (*.*)'
+        file_path = QFileDialog.getOpenFileName(self, 'Select File', filter=file_filter)
+        file_path = file_path[0]
+        print(file_path)
 
+    def send(self) :
         import socket
         import re, uuid
         User_Host_Name = socket.gethostname()
@@ -514,11 +534,26 @@ class ErrorWindow(QMainWindow, ui_error):
         try :
             import smtplib
             from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.base import MIMEBase
+            from email import encoders
             s = smtplib.SMTP('smtp.gmail.com', 587)
             s.starttls()
             s.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
-            msg = MIMEText(content)
+            msg = MIMEMultipart()
             msg['Subject'] = title
+            msg.attach(MIMEText(content, 'plain'))
+            try :
+                File Upload
+                attachment = open(file_path, 'rb')
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload((attachment).read())
+                encoders.encode_base64(part)
+                file_name = file_path.split("/")[-1]
+                part.add_header('Content-Disposition', "attachment; filename= " + file_name)
+                msg.attach(part)
+            except :
+                pass
             s.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
             s.quit()
             log("Error Report > Send > Success")

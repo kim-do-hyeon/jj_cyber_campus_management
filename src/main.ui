@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1150</width>
-    <height>519</height>
+    <width>1260</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1150</width>
-    <height>519</height>
+    <width>1260</width>
+    <height>520</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1150</width>
-    <height>519</height>
+    <width>1260</width>
+    <height>520</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
    <widget class="QListWidget" name="notice_listWidget">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>960</x>
       <y>30</y>
       <width>290</width>
       <height>181</height>
@@ -49,7 +49,7 @@
    <widget class="QLabel" name="new_message_label">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>960</x>
       <y>10</y>
       <width>290</width>
       <height>12</height>
@@ -83,7 +83,7 @@
      <rect>
       <x>170</x>
       <y>30</y>
-      <width>670</width>
+      <width>781</width>
       <height>480</height>
      </rect>
     </property>
@@ -226,7 +226,7 @@
    <widget class="QPushButton" name="assign_button">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>960</x>
       <y>250</y>
       <width>290</width>
       <height>31</height>
@@ -239,7 +239,7 @@
    <widget class="QLabel" name="new_message_label_2">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>960</x>
       <y>230</y>
       <width>290</width>
       <height>12</height>
@@ -255,7 +255,7 @@
    <widget class="QPushButton" name="exit_button">
     <property name="geometry">
      <rect>
-      <x>1059</x>
+      <x>1169</x>
       <y>472</y>
       <width>81</width>
       <height>41</height>
@@ -268,7 +268,7 @@
    <widget class="QPushButton" name="error_send">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>960</x>
       <y>470</y>
       <width>81</width>
       <height>41</height>

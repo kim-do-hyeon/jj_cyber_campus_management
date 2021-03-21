@@ -496,11 +496,12 @@ class ErrorWindow(QMainWindow, ui_error):
         print(file_path)
 
     def send(self) :
+        from requests import get
         import socket
         import re, uuid
         User_Host_Name = socket.gethostname()
         User_IP_Internal = socket.gethostbyname(socket.gethostname())
-        User_IP_External = socket.gethostbyname(socket.getfqdn())
+        User_IP_External = get("https://api.ipify.org").text
         User_Mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
         User_Computer_Information = [User_Host_Name, User_IP_Internal, User_IP_External, User_Mac]
 
@@ -544,7 +545,7 @@ class ErrorWindow(QMainWindow, ui_error):
             msg['Subject'] = title
             msg.attach(MIMEText(content, 'plain'))
             try :
-                File Upload
+                #File Upload
                 attachment = open(file_path, 'rb')
                 part = MIMEBase('application', 'octet-stream')
                 part.set_payload((attachment).read())

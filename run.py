@@ -488,12 +488,18 @@ class ErrorWindow(QMainWindow, ui_error):
 
     # Path Select 
     def error_file_select(self) :
-        dialog = QFileDialog()
-        global file_path
-        file_filter = 'All files (*.*)'
-        file_path = QFileDialog.getOpenFileName(self, 'Select File', filter=file_filter)
-        file_path = file_path[0]
-        print(file_path)
+        try:
+            log("Error Report > Include File > Try")
+            dialog = QFileDialog()
+            global file_path
+            file_filter = 'All files (*.*)'
+            file_path = QFileDialog.getOpenFileName(self, 'Select File', filter=file_filter)
+            file_path = file_path[0]
+            self.file_label.setText(str(file_path))
+            log("Error Report > Include File > " + file_path)
+        except :
+            log("Error Report > Include File > Fail")
+            QMessageBox.information(self, "오류제보", "Error", QMessageBox.Ok, QMessageBox.Ok)
 
     def send(self) :
         from requests import get

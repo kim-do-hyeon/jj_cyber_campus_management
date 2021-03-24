@@ -299,7 +299,11 @@ class MainWindow(QMainWindow, ui_main):
             for j in range(5):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
-                item.setText(_translate("MainWindow", str(class_detail[i][j])))
+                if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "FAIL":
+                    item.setForeground(QBrush(Qt.red))
+                    item.setText(_translate("MainWindow", str(class_detail[i][j])))
+                else :
+                    item.setText(_translate("MainWindow", str(class_detail[i][j])))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
     def assign(self):

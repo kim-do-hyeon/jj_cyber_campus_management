@@ -301,6 +301,7 @@ class MainWindow(QMainWindow, ui_main):
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "FAIL":
                     item.setForeground(QBrush(Qt.red))
+                    item.setBackground(QBrush(Qt.yellow))
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))
                 else :
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))

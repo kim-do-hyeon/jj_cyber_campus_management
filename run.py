@@ -295,7 +295,7 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setColumnWidth(1, 340)
         self.tableWidget.setColumnWidth(2, 65)
         self.tableWidget.setColumnWidth(3, 65)
-            
+        self.tableWidget.verticalHeader().setVisible(False)
         for i in range(len(class_detail)):
             for j in range(5):
                 item = self.tableWidget.item(i, j)
@@ -358,23 +358,26 @@ class MainWindow(QMainWindow, ui_main):
         soup = BeautifulSoup(html, 'html.parser')
         global grade_all
         grade_all = []
-        for j in range(1, 9) :
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(1)"):
-                year = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(2)"):
-                semester = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(3)"):
-                classname = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"):
-                professor = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(5)"):
-                grade = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(6)"):
-                grade_percent = (i.text)
-            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(7)"):
-                complete_grade = (i.text)
-            log("Webdriver > Parse > Grade > " + str([year, semester, classname, professor, grade, grade_percent, complete_grade]))
-            grade_all.append([year, semester, classname, professor, grade, grade_percent, complete_grade])
+        try :
+            for j in range(1, 9) :
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(1)"):
+                    year = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(2)"):
+                    semester = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(3)"):
+                    classname = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"):
+                    professor = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(5)"):
+                    grade = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(6)"):
+                    grade_percent = (i.text)
+                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(7)"):
+                    complete_grade = (i.text)
+                log("Webdriver > Parse > Grade > " + str([year, semester, classname, professor, grade, grade_percent, complete_grade]))
+                grade_all.append([year, semester, classname, professor, grade, grade_percent, complete_grade])
+        except :
+            QMessageBox.warning(self, '오류', '성적을 가져오는데 오류가 발생하였습니다.\n오류 제보를 통해서 log.txt 파일을 보내주세요', QMessageBox.Ok, QMessageBox.Ok)
         self.grade = GradeWindow()
         self.grade.show()
 
@@ -456,6 +459,7 @@ class AssignWindow(QMainWindow, ui_assign):
         _translate = QCoreApplication.translate
         self.assign_tableWidget.setColumnCount(6)
         self.assign_tableWidget.setRowCount(len(assign))
+        self.assign_tableWidget.verticalHeader().setVisible(False)
         for i in range(len(assign)):
             item = QTableWidgetItem()
             self.assign_tableWidget.setVerticalHeaderItem(i, item)
@@ -511,6 +515,8 @@ class GradeWindow(QMainWindow, ui_grade):
         _translate = QCoreApplication.translate
         self.grade_tableWidget.setColumnCount(7)
         self.grade_tableWidget.setRowCount(len(grade_all))
+        self.grade_tableWidget.verticalHeader().setVisible(False)
+
         for i in range(len(grade_all)):
             item = QTableWidgetItem()
             self.grade_tableWidget.setVerticalHeaderItem(i, item)

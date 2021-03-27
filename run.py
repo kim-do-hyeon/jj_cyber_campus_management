@@ -217,6 +217,7 @@ class MainWindow(QMainWindow, ui_main):
 
         # Button
         self.assign_button.clicked.connect(self.assign)
+        self.grade_button.clicked.connect(self.grade)
         self.error_send.clicked.connect(self.error)
         self.exit_button.clicked.connect(self.exit)
 
@@ -348,6 +349,35 @@ class MainWindow(QMainWindow, ui_main):
         self.assignment = AssignWindow()
         self.assignment.show()
 
+    def grade(self):
+        log("*** Get Grade ***")
+        QMessageBox.information(self, "성작 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
+        grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php"
+        driver.get(grade_url)
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        global grade_all
+        grade_all = []
+        for j in range(1, 9) :
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(1)"):
+                year = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(2)"):
+                semester = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(3)"):
+                classname = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"):
+                professor = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(5)"):
+                grade = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(6)"):
+                grade_percent = (i.text)
+            for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(7)"):
+                complete_grade = (i.text)
+            log("Webdriver > Parse > Grade > " + str([year, semester, classname, professor, grade, grade_percent, complete_grade]))
+            grade_all.append([year, semester, classname, professor, grade, grade_percent, complete_grade])
+        self.grade = GradeWindow()
+        self.grade.show()
+
     def error(self) :
         self.error_window = ErrorWindow()
         self.error_window.show()
@@ -464,6 +494,63 @@ class AssignWindow(QMainWindow, ui_assign):
 
     def exit(self) :
         log("*** Exit Assignment Window ***")
+        self.close()
+
+ui_grade_path = "src/grade.ui"
+ui_grade = uic.loadUiType(ui_grade_path)[0]
+class GradeWindow(QMainWindow, ui_grade):
+    def __init__(self):
+        log("*** Open Grade Window ***")
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('src\icon.ico'))
+
+        # Button - Exit
+        self.exit_button.clicked.connect(self.exit)
+
+        _translate = QCoreApplication.translate
+        self.grade_tableWidget.setColumnCount(7)
+        self.grade_tableWidget.setRowCount(len(grade_all))
+        for i in range(len(grade_all)):
+            item = QTableWidgetItem()
+            self.grade_tableWidget.setVerticalHeaderItem(i, item)
+        for i in range(7):
+            item = QTableWidgetItem()
+            self.grade_tableWidget.setHorizontalHeaderItem(i, item)
+        item = QTableWidgetItem()
+        for i in range(len(grade_all)):
+            for j in range(7):
+                self.grade_tableWidget.setItem(i, j, item)
+                item = QTableWidgetItem()
+        for i in range(len(grade_all)) :
+            item = self.grade_tableWidget.verticalHeaderItem(i)
+            item.setText(_translate("MainWindow", str(i)))
+        item = self.grade_tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "연도"))
+        item = self.grade_tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "학기"))
+        item = self.grade_tableWidget.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "강좌명"))
+        item = self.grade_tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "담당교수"))
+        item = self.grade_tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "성적"))
+        item = self.grade_tableWidget.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "백분환산점수"))
+        item = self.grade_tableWidget.horizontalHeaderItem(6)
+        item.setText(_translate("MainWindow", "최종성적"))
+        __sortingEnabled = self.grade_tableWidget.isSortingEnabled()
+        self.grade_tableWidget.setSortingEnabled(False)
+
+        for i in range(len(grade_all)):
+            for j in range(7):
+                item = self.grade_tableWidget.item(i, j)
+                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
+                item.setText(_translate("MainWindow", str(grade_all[i][j])))
+        self.grade_tableWidget.setSortingEnabled(__sortingEnabled)
+
+    def exit(self) :
+        log("*** Exit Grade Window ***")
         self.close()
 
 ui_error_path = "src/error.ui"

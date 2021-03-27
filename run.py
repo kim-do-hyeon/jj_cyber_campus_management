@@ -292,7 +292,7 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setSortingEnabled(False)
 
         self.tableWidget.setColumnWidth(0, 150)
-        self.tableWidget.setColumnWidth(1, 340)
+        self.tableWidget.setColumnWidth(1, 360)
         self.tableWidget.setColumnWidth(2, 65)
         self.tableWidget.setColumnWidth(3, 65)
         self.tableWidget.verticalHeader().setVisible(False)
@@ -488,6 +488,13 @@ class AssignWindow(QMainWindow, ui_assign):
         item.setText(_translate("MainWindow", "성적"))
         __sortingEnabled = self.assign_tableWidget.isSortingEnabled()
         self.assign_tableWidget.setSortingEnabled(False)
+
+        self.assign_tableWidget.setColumnWidth(0, 135)
+        self.assign_tableWidget.setColumnWidth(1, 170)
+        self.assign_tableWidget.setColumnWidth(2, 200)
+        self.assign_tableWidget.setColumnWidth(3, 130)
+        self.assign_tableWidget.setColumnWidth(4, 100)
+        self.assign_tableWidget.setColumnWidth(5, 30)
 
         for i in range(len(assign)):
             for j in range(6):

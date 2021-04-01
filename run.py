@@ -696,7 +696,7 @@ class ErrorWindow(QMainWindow, ui_error):
         if user_contact == "" :
             user_contact = "연락쳐 : 익명"
         
-        content = content + "\n\n=====================================\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
+        content = content + "\n\n=====================================\n\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
 
         try :
             import smtplib

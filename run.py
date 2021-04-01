@@ -62,6 +62,7 @@ class LoginWindow(QMainWindow, ui):
             try : 
                 driver = webdriver.Chrome('chromedriver.exe', chrome_options=options) # Run chromedriver.exe
                 log("Webdriver > Try to run Chrome")
+                QMessageBox.information(self, 'Notice', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
             except :
                 QMessageBox.warning(self, 'File Error', 'chromedriver.exe 파일을 찾을수 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 log("Webdriver > Does not exist chromedriver.exe")
@@ -91,6 +92,7 @@ class LoginWindow(QMainWindow, ui):
             class_count = len(soup.find_all(class_='coursefullname'))
             class_name = []
             class_url = []
+            
             for i in range(class_count) :
                 class_name.append(soup.find_all(class_='coursefullname')[i].get_text())
 
@@ -112,7 +114,7 @@ class LoginWindow(QMainWindow, ui):
                 QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Fail ***")
             else : # If class is full, Login Success
-                QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
+                # QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Success ***")
                 log("*** Get Notice ***")
                 notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"

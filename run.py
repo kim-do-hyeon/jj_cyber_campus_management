@@ -1,3 +1,4 @@
+# Call Module
 import os
 import re
 import sys
@@ -10,28 +11,35 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 
+# Log Timestamp Function
 def timestamp():
     import datetime
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-def log(message): # LOG
+# Log Function
+def log(message):
             message = timestamp() + ' > ' + message
             print(message, file=log_file)
 
+# Open log file (log.txt)
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
-ui_path = "src/login.ui"
-ui = uic.loadUiType(ui_path)[0] # Call ui file
 
+# Call ui(Login.ui) File
+ui_path = "src/login.ui"
+ui = uic.loadUiType(ui_path)[0]
+
+# Call Gui Enviroment (Login)
 class LoginWindow(QMainWindow, ui):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon('src\icon.ico'))
+        self.setWindowIcon(QIcon('src\icon.ico')) # Icon setting
 
         # File Management Buttons
         self.login_button.clicked.connect(self.login)
 
+    # Login Function
     def login(self) :
         if self.login_id.text() == "" : # school id is blank
             QMessageBox.information(self, '로그인', '학번을 입력해주세요.', QMessageBox.Ok, QMessageBox.Ok)
@@ -52,7 +60,7 @@ class LoginWindow(QMainWindow, ui):
 
             global driver
             try : 
-                driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
+                driver = webdriver.Chrome('chromedriver.exe', chrome_options=options) # Run chromedriver.exe
                 log("Webdriver > Try to run Chrome")
             except :
                 QMessageBox.warning(self, 'File Error', 'chromedriver.exe 파일을 찾을수 없습니다.', QMessageBox.Ok, QMessageBox.Ok)
@@ -62,8 +70,8 @@ class LoginWindow(QMainWindow, ui):
             login_url = "https://cyber.jj.ac.kr/login.php"
             class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
 
-            # login Page
-            driver.get(login_url)
+            # Login Page
+            driver.get(login_url) # Open Login Page
             log("Webdriver > Access Url > https://cyber.jj.ac.kr/login.php")
             driver.find_element_by_name('username').send_keys(student_id) # Send ID
             driver.find_element_by_name('password').send_keys(student_pw) # Send Password
@@ -71,8 +79,9 @@ class LoginWindow(QMainWindow, ui):
             log("Webdriver > Try to Login")
 
             # user info Page
-            driver.get(class_url)
+            driver.get(class_url) # Open User Info Page
             log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubion/user/")
+
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
 
@@ -99,15 +108,15 @@ class LoginWindow(QMainWindow, ui):
             for i in range(len(class_all)) :
                 log("Webdriver > Parse > Class > " + str(class_all[i]))
 
-            if class_all == [] : # 강의가 없다면 로그인 실패
+            if class_all == [] : # If class is blank, Login Fail
                 QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Fail ***")
-            else :
+            else : # If class is full, Login Success
                 QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Success ***")
                 log("*** Get Notice ***")
                 notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
-                driver.get(notice_url)
+                driver.get(notice_url) # Open Notice Page
                 log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubnotification/")
                 html = driver.page_source
                 soup = BeautifulSoup(html, 'html.parser')
@@ -122,10 +131,9 @@ class LoginWindow(QMainWindow, ui):
 
                 for a in temp.find_all('a', href=True):
                     notice_url_value.append(a['href'])
-                
                 notice_url_value.pop()
 
-                for i in range(len(notice_url_value)):
+                for i in range(len(notice_url_value)): # Get Notice Detail
                     name = (soup.find_all(class_="media-heading")[i].get_text())
                     timeago = (soup.find_all(class_="timeago")[i].get_text())
                     message = str(soup.find_all(class_="media-body")[i])
@@ -142,7 +150,7 @@ class LoginWindow(QMainWindow, ui):
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
 
-                # 강의 정보 (수강 시간 등)
+                # Class Detail (Run time, etc)
                 log("*** Get Class Detail ***")
                 for i in range(len(class_id)) :
                     class_name = class_all[i][0]
@@ -181,7 +189,8 @@ class LoginWindow(QMainWindow, ui):
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             break
-                # 강의 시청 링크
+
+                # Get Link for Watch Cyber class
                 log("*** Get Watch Video Link ***")
                 video = []
                 for i in range(len(class_id)) :
@@ -196,21 +205,28 @@ class LoginWindow(QMainWindow, ui):
                         for a in url_soup.find_all('a', href=True):
                             log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
                             video.append([class_id[i], a['href']])
+                
                 for i in range(len(class_detail)) :
                     class_detail[i].append(video[i])
 
+                # Call Main Window
                 self.management = MainWindow()
                 self.management.show()
                 self.close()
 
+# Call ui(main.ui) File
 ui_main_path = "src/main.ui"
 ui_main = uic.loadUiType(ui_main_path)[0]
+
+# Call Gui Enviroment (MainWindow)
 class MainWindow(QMainWindow, ui_main):
     def __init__(self):
         log("*** Open MainWindow ***")
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
+
+        # Item Double Clicked Function
         self.notice_listWidget.itemDoubleClicked.connect(self.notice_ItemDoubleClicked)
         self.class_listWidget.itemDoubleClicked.connect(self.class_ItemDoubleClicked)
         self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
@@ -231,7 +247,8 @@ class MainWindow(QMainWindow, ui_main):
         
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        # School user id
+
+        # Get School User ID
         school_id = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(1) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         global user_school_id
@@ -239,7 +256,7 @@ class MainWindow(QMainWindow, ui_main):
         self.school_number_line.setText(str(user_school_id))
         log("Webdriver > Get Informtaion > " + str(user_school_id))
 
-        # User Name
+        # Get User Name
         name = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(2) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         global user_name
@@ -247,7 +264,7 @@ class MainWindow(QMainWindow, ui_main):
         self.name_line.setText(str(user_name))
         log("Webdriver > Get Informtaion > " + str(user_name))
 
-        # User Phone Number
+        # Get User Phone Number
         phone_number = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(3) > td"))
         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         global user_phone_number
@@ -264,20 +281,25 @@ class MainWindow(QMainWindow, ui_main):
         _translate = QCoreApplication.translate
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(len(class_detail))
+
         for i in range(len(class_detail)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
+
         for i in range(5):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
+
         for i in range(len(class_detail)):
             for j in range(5):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
+
         for i in range(len(class_detail)) :
             item = self.tableWidget.verticalHeaderItem(i)
             item.setText(_translate("MainWindow", str(i)))
+
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "강의 이름"))
         item = self.tableWidget.horizontalHeaderItem(1)
@@ -296,6 +318,7 @@ class MainWindow(QMainWindow, ui_main):
         self.tableWidget.setColumnWidth(2, 65)
         self.tableWidget.setColumnWidth(3, 65)
         self.tableWidget.verticalHeader().setVisible(False)
+
         for i in range(len(class_detail)):
             for j in range(5):
                 item = self.tableWidget.item(i, j)
@@ -308,6 +331,7 @@ class MainWindow(QMainWindow, ui_main):
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
+    # Call Assign Function
     def assign(self):
         log("*** Get Assignment ***")
         QMessageBox.information(self, "과제 확인", "과제를 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
@@ -316,7 +340,7 @@ class MainWindow(QMainWindow, ui_main):
         for i in range(len(class_id)) :
             class_name = class_all[i][0]
             class_assign_url = "http://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
-            driver.get(class_assign_url)
+            driver.get(class_assign_url) # Open Class Assign Page
             log("Webdriver > Access Url > " + str(class_assign_url))
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
@@ -346,14 +370,17 @@ class MainWindow(QMainWindow, ui_main):
                     assign.append(temp1)
                     assign.append(temp2)
                     log("Webdriver > Parse > Get Assignment > " + str([temp1, temp2]))
+        
+        # Call Assign Window
         self.assignment = AssignWindow()
         self.assignment.show()
 
+    # Call Grade Function
     def grade(self):
         log("*** Get Grade ***")
         QMessageBox.information(self, "성작 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
         grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php"
-        driver.get(grade_url)
+        driver.get(grade_url) # Open Grade Page
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         global grade_all
@@ -378,13 +405,15 @@ class MainWindow(QMainWindow, ui_main):
                 grade_all.append([year, semester, classname, professor, grade, grade_percent, complete_grade])
         except :
             QMessageBox.warning(self, '오류', '성적을 가져오는데 오류가 발생하였습니다.\n오류 제보를 통해서 log.txt 파일을 보내주세요', QMessageBox.Ok, QMessageBox.Ok)
+        
+        # Call Grade Window
         self.grade = GradeWindow()
         self.grade.show()
 
+    # Call Error Window
     def error(self) :
         self.error_window = ErrorWindow()
         self.error_window.show()
-
 
     def notice_ItemDoubleClicked(self) :
         get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
@@ -405,7 +434,6 @@ class MainWindow(QMainWindow, ui_main):
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_ItemDoubleClicked(self) :
-        
         row = self.class_listWidget.currentRow()
         url = class_all[row][1]
         log("DoubleClick > Class > " + str([row, url]))
@@ -439,13 +467,17 @@ class MainWindow(QMainWindow, ui_main):
             else:
                 log("DoubleClick > Class Detail > Question > N")
                 return
-
+    
+    # Exit Function (Close Program)
     def exit(self) :
         log("*** Exit Program ***")
         self.close()
 
+# Call ui(assign.ui) File
 ui_assign_path = "src/assign.ui"
 ui_assign = uic.loadUiType(ui_assign_path)[0]
+
+# Call Gui Enviroment (AssignWindow)
 class AssignWindow(QMainWindow, ui_assign):
     def __init__(self):
         log("*** Open Assinment Window ***")
@@ -460,20 +492,25 @@ class AssignWindow(QMainWindow, ui_assign):
         self.assign_tableWidget.setColumnCount(6)
         self.assign_tableWidget.setRowCount(len(assign))
         self.assign_tableWidget.verticalHeader().setVisible(False)
+
         for i in range(len(assign)):
             item = QTableWidgetItem()
             self.assign_tableWidget.setVerticalHeaderItem(i, item)
+
         for i in range(6):
             item = QTableWidgetItem()
             self.assign_tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
+
         for i in range(len(assign)):
             for j in range(6):
                 self.assign_tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
+
         for i in range(len(assign)) :
             item = self.assign_tableWidget.verticalHeaderItem(i)
             item.setText(_translate("MainWindow", str(i)))
+
         item = self.assign_tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "강의 이름"))
         item = self.assign_tableWidget.horizontalHeaderItem(1)
@@ -503,12 +540,16 @@ class AssignWindow(QMainWindow, ui_assign):
                 item.setText(_translate("MainWindow", str(assign[i][j])))
         self.assign_tableWidget.setSortingEnabled(__sortingEnabled)
 
+    # Exit Function (Close Assignment Window)
     def exit(self) :
         log("*** Exit Assignment Window ***")
         self.close()
 
+# Call ui(grade.ui) File
 ui_grade_path = "src/grade.ui"
 ui_grade = uic.loadUiType(ui_grade_path)[0]
+
+# Call Gui Enviroment (Grade Window)
 class GradeWindow(QMainWindow, ui_grade):
     def __init__(self):
         log("*** Open Grade Window ***")
@@ -527,17 +568,21 @@ class GradeWindow(QMainWindow, ui_grade):
         for i in range(len(grade_all)):
             item = QTableWidgetItem()
             self.grade_tableWidget.setVerticalHeaderItem(i, item)
+
         for i in range(7):
             item = QTableWidgetItem()
             self.grade_tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
+
         for i in range(len(grade_all)):
             for j in range(7):
                 self.grade_tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
+
         for i in range(len(grade_all)) :
             item = self.grade_tableWidget.verticalHeaderItem(i)
             item.setText(_translate("MainWindow", str(i)))
+
         item = self.grade_tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "연도"))
         item = self.grade_tableWidget.horizontalHeaderItem(1)
@@ -561,13 +606,17 @@ class GradeWindow(QMainWindow, ui_grade):
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 item.setText(_translate("MainWindow", str(grade_all[i][j])))
         self.grade_tableWidget.setSortingEnabled(__sortingEnabled)
-
+    
+    # Exit Function (Close Grade Window)
     def exit(self) :
         log("*** Exit Grade Window ***")
         self.close()
 
+# Call ui(error.ui) File
 ui_error_path = "src/error.ui"
 ui_error = uic.loadUiType(ui_error_path)[0]
+
+# Call Gui Enviroment (Error Window)
 class ErrorWindow(QMainWindow, ui_error):
     def __init__(self):
         log("*** Open Error Report Window ***")
@@ -578,6 +627,7 @@ class ErrorWindow(QMainWindow, ui_error):
         # Button
         self.send_button.clicked.connect(self.send)
         self.include_button.clicked.connect(self.error_file_select)
+
         # radio
         self.writer_open_radio.clicked.connect(self.groupboxRadFunction)
         self.writer_close_radio.clicked.connect(self.groupboxRadFunction)
@@ -606,6 +656,7 @@ class ErrorWindow(QMainWindow, ui_error):
             log("Error Report > Include File > Fail")
             QMessageBox.information(self, "오류제보", "Error", QMessageBox.Ok, QMessageBox.Ok)
 
+    # Mail Send Function
     def send(self) :
         from requests import get
         import socket
@@ -674,6 +725,7 @@ class ErrorWindow(QMainWindow, ui_error):
             log("Error Report > Send > Fail")
             QMessageBox.information(self, "오류제보", "문제가 발생하였습니다.", QMessageBox.Ok, QMessageBox.Ok)
 
+# Main Function
 def main():
     app = QApplication(sys.argv)
     window = LoginWindow()

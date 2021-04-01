@@ -278,6 +278,7 @@ class MainWindow(QMainWindow, ui_main):
         for i in range(len(notice_value)) :
             self.notice_listWidget.addItem(notice_value[i][0])
 
+        # QtableWidget - Class Table
         _translate = QCoreApplication.translate
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(len(class_detail))
@@ -488,6 +489,7 @@ class AssignWindow(QMainWindow, ui_assign):
         # Button - Exit
         self.exit_button.clicked.connect(self.exit)
 
+        # QtableWidget - Assign Table
         _translate = QCoreApplication.translate
         self.assign_tableWidget.setColumnCount(6)
         self.assign_tableWidget.setRowCount(len(assign))
@@ -560,6 +562,7 @@ class GradeWindow(QMainWindow, ui_grade):
         # Button - Exit
         self.exit_button.clicked.connect(self.exit)
 
+        # QtableWidget - Grade Table
         _translate = QCoreApplication.translate
         self.grade_tableWidget.setColumnCount(7)
         self.grade_tableWidget.setRowCount(len(grade_all))
@@ -665,7 +668,7 @@ class ErrorWindow(QMainWindow, ui_error):
         User_IP_Internal = socket.gethostbyname(socket.gethostname())
         User_IP_External = get("https://api.ipify.org").text
         User_Mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
-        User_Computer_Information = [User_Host_Name, User_IP_Internal, User_IP_External, User_Mac]
+        User_Computer_Information = "Information : " + str([User_Host_Name, User_IP_Internal, User_IP_External, User_Mac])
 
         log("Error Report > Send > Try")
         title = self.title_message.toPlainText()
@@ -681,19 +684,20 @@ class ErrorWindow(QMainWindow, ui_error):
         
         try :
             if Disclosure_status == 1:
-                contact = [user_school_id, user_name, user_phone_number]
+                contact = "작성자 공개 : " + str([user_school_id, user_name, user_phone_number])
             else :
-                contact = "익명"
+                contact = "작성자 공개 : 익명"
         except :
             QMessageBox.information(self, "오류제보", "작성자 공개 여부를 체크해주세요.", QMessageBox.Ok, QMessageBox.Ok)
             log("Error Report > Send > Error Disclosure_status")
             return
 
-        user_contact = self.contact_message.toPlainText()
+        user_contact = "연락쳐 : " + str(self.contact_message.toPlainText())
         if user_contact == "" :
-            user_contact = "익명"
+            user_contact = "연락쳐 : 익명"
         
-        content = content + "\n\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
+        content = content + "\n\n=====================================\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
+
         try :
             import smtplib
             from email.mime.text import MIMEText

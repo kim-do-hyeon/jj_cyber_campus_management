@@ -33,7 +33,7 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
-# global chrome_check
+# Check Chrome Version
 try :
     chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
     log("Chrome browser is installed.")
@@ -42,6 +42,7 @@ except :
     log("Chrome browser is not installed.")
     chrome_check = 0
 
+# Check chromedriver is exist
 file_list = os.listdir()
 for i in file_list :
     if i == 'chromedriver.exe' :
@@ -58,6 +59,8 @@ ui = uic.loadUiType(ui_path)[0]
 class LoginWindow(QMainWindow, ui):
     def __init__(self):
         super().__init__()
+
+        # Download Chromedriver
         if chrome_check == 0 :
             QMessageBox.information(self, 'Chrome Browser', '크롬 브라우져를 설치해주세요.', QMessageBox.Ok, QMessageBox.Ok)
             quit()

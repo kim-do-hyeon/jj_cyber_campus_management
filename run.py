@@ -10,6 +10,14 @@ from PyQt5 import uic
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
+from requests import get
+import zipfile
+
+# File Download Function
+def download(url, file_name):
+    with open(file_name, "wb") as file:
+        response = get(url)
+        file.write(response.content)
 
 # Log Timestamp Function
 def timestamp():
@@ -25,6 +33,23 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
+# global chrome_check
+try :
+    chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+    log("Chrome browser is installed.")
+    chrome_check = 1
+except :
+    log("Chrome browser is not installed.")
+    chrome_check = 0
+
+file_list = os.listdir()
+for i in file_list :
+    if i == 'chromedriver.exe' :
+        check = 1
+        break
+    else :
+        check = 0
+
 # Call ui(Login.ui) File
 ui_path = "src/login.ui"
 ui = uic.loadUiType(ui_path)[0]
@@ -33,6 +58,31 @@ ui = uic.loadUiType(ui_path)[0]
 class LoginWindow(QMainWindow, ui):
     def __init__(self):
         super().__init__()
+        if chrome_check == 0 :
+            QMessageBox.information(self, 'Chrome Browser', '크롬 브라우져를 설치해주세요.', QMessageBox.Ok, QMessageBox.Ok)
+            quit()
+        if check == 0 :
+            QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
+            log("Download Chromedriver")
+            if chrome_version == '90' :
+                chrome_version_90 = 'https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_win32.zip'
+                download(chrome_version_90, "chromedriver.zip")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+            elif chrome_version == '89' :
+                chrome_version_89 = 'https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_win32.zip'
+                download(chrome_version_89, "chromedriver.zip")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+            elif chrome_version == '88' :
+                chrome_version_88 = 'https://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_win32.zip'
+                download(chrome_version_88, "chromedriver.zip")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+            elif chrome_version == '87' :
+                chrome_version_87 = 'https://chromedriver.storage.googleapis.com/87.0.4280.88/chromedriver_win32.zip'
+                download(chrome_version_87, "chromedriver.zip")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+        elif check == 1 :
+            log("Chromedriver is installed")
+
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico')) # Icon setting
 

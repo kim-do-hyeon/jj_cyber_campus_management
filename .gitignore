@@ -9,3 +9,4 @@ dist
 *.spec
 *.zip
 *.txt
+chromedriver.exe

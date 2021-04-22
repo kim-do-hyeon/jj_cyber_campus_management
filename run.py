@@ -70,19 +70,27 @@ class LoginWindow(QMainWindow, ui):
             if chrome_version == '90' :
                 chrome_version_90 = 'https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_win32.zip'
                 download(chrome_version_90, "chromedriver.zip")
+                log("Download Chromedriver Version 90")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
             elif chrome_version == '89' :
                 chrome_version_89 = 'https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_win32.zip'
                 download(chrome_version_89, "chromedriver.zip")
+                log("Download Chromedriver Version 89")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
             elif chrome_version == '88' :
                 chrome_version_88 = 'https://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_win32.zip'
                 download(chrome_version_88, "chromedriver.zip")
+                log("Download Chromedriver Version 988")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
             elif chrome_version == '87' :
                 chrome_version_87 = 'https://chromedriver.storage.googleapis.com/87.0.4280.88/chromedriver_win32.zip'
                 download(chrome_version_87, "chromedriver.zip")
+                log("Download Chromedriver Version 87")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
         elif check == 1 :
             log("Chromedriver is installed")
 

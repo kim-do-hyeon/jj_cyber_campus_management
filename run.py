@@ -37,7 +37,10 @@ log("*** Start Program ***")
 
 # Check Chrome Version
 try :
-    chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+    try:
+        chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+    except :
+        chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
     log("Chrome browser is installed.")
     chrome_check = 1
 except :
@@ -207,9 +210,7 @@ class LoginWindow(QMainWindow, ui):
                 log("*** Login Success ***")
                 if auto_login_check == 0 :
                     reply = QMessageBox.question(self, '로그인 성공', '자동 로그인 기능을 활성화 하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                    if reply == QMessageBox.No :
-                        return
-                    elif reply == QMessageBox.Yes :
+                    if reply == QMessageBox.Yes :
                         try :
                             auto_login(student_id, student_pw)
                         except :

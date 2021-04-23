@@ -5,12 +5,16 @@
 * Chrome(크롬)이 설치되어있어야 합니다.
 * 네트워크(인터넷) 환경에 따라 시간이 소요될수도 있습니다.
 
-# Preview
+# 사용방법
+1. 첨부파일을 다운 받아서 압축을 해제해 줍니다.
 ![1](https://user-images.githubusercontent.com/21982942/115864900-846e9a00-a472-11eb-90a7-7eadc214f8b0.png)
 ![2](https://user-images.githubusercontent.com/21982942/115864903-85073080-a472-11eb-9ea6-195d811d1230.JPG)
+2. run.exe 파일을 실행시켜줍니다.
 ![3](https://user-images.githubusercontent.com/21982942/115864905-85073080-a472-11eb-917b-abd3b0460110.JPG)
+3. 필요한 프로그램을 다운받는다는 팝업창이 나옵니다.
 ![4](https://user-images.githubusercontent.com/21982942/115864906-859fc700-a472-11eb-96dd-783dd99b9f50.JPG)
-![5](https://user-images.githubusercontent.com/21982942/115864875-7e78b900-a472-11eb-8684-f4dc9ec1ab72.JPG)
+4. 로그인 창이 나오게 되면 학번과 비밀번호를 입력해 줍니다.
+![image](https://user-images.githubusercontent.com/21982942/115865238-06f75980-a473-11eb-8a84-fbefdfeb89d1.png)
 ![5_1](https://user-images.githubusercontent.com/21982942/115864879-7f114f80-a472-11eb-9dc4-f38ec0a22839.JPG)
 ![6](https://user-images.githubusercontent.com/21982942/115864880-7fa9e600-a472-11eb-8b33-940b6a18d6a7.JPG)
 ![7](https://user-images.githubusercontent.com/21982942/115864882-7fa9e600-a472-11eb-9f73-08b6080603ac.JPG)

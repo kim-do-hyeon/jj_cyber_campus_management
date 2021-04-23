@@ -2,7 +2,9 @@
 import os
 import re
 import sys
+import sqlite3
 import webbrowser
+import zipfile\
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -11,7 +13,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 from requests import get
-import zipfile
+from pathlib import Path
 
 # File Download Function
 def download(url, file_name):
@@ -43,13 +45,21 @@ except :
     chrome_check = 0
 
 # Check chromedriver is exist
-file_list = os.listdir()
-for i in file_list :
-    if i == 'chromedriver.exe' :
-        check = 1
-        break
-    else :
-        check = 0
+fileObj = Path("chromedriver.exe")
+if fileObj.is_file() == True :
+    check = 1
+else :
+    check = 0
+
+# Auto login Check Function
+def auto_login(student_id, student_pw):
+    result = [student_id, student_pw]
+    conn = sqlite3.connect("user.db")
+    cur = conn.cursor()
+    cur.execute("create table user (user_id text, user_pw text)")
+    cur.execute("insert into user values (?, ?)", result)
+    conn.commit()
+    conn.close()
 
 # Call ui(Login.ui) File
 ui_path = "src/login.ui"
@@ -93,11 +103,29 @@ class LoginWindow(QMainWindow, ui):
                 log("Unziped Chromedriver.zip")
         elif check == 1 :
             log("Chromedriver is installed")
-
+        
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico')) # Icon setting
 
-        # File Management Buttons
+        # Auto login check file (user.db)
+        try :
+            fileObj = Path("user.db")
+            if fileObj.is_file() == True :
+                conn = sqlite3.connect("user.db")
+                cur = conn.cursor()
+                cur.execute('select * from user')
+                global user
+                user = cur.fetchall()
+                user_id = user[0][0]
+                user_pw = user[0][1]
+                self.login_id.setText(user_id)
+                self.login_pw.setText(user_pw)
+                global auto_login_check
+                auto_login_check = 1
+        except :
+            pass
+
+        # Login Buttons
         self.login_button.clicked.connect(self.login)
 
     # Login Function
@@ -109,16 +137,12 @@ class LoginWindow(QMainWindow, ui):
             QMessageBox.information(self, '로그인', '비밀번호를 입력해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
             log("Login > School Password is blank")
         else : # login
-            student_id = (self.login_id.text())
-            student_pw = (self.login_pw.text())
             log("Login > Try Login")
-            
             options = webdriver.ChromeOptions()
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
             options.add_argument("disable-gpu")
             log("Webdriver > headless, window-size=1920x1080, disable-gpu options")
-
             global driver
             try : 
                 driver = webdriver.Chrome('chromedriver.exe', chrome_options=options) # Run chromedriver.exe
@@ -132,6 +156,9 @@ class LoginWindow(QMainWindow, ui):
             login_url = "https://cyber.jj.ac.kr/login.php"
             class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
 
+            student_id = (self.login_id.text())
+            student_pw = (self.login_pw.text())
+        
             # Login Page
             driver.get(login_url) # Open Login Page
             log("Webdriver > Access Url > https://cyber.jj.ac.kr/login.php")
@@ -175,8 +202,19 @@ class LoginWindow(QMainWindow, ui):
                 QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Fail ***")
             else : # If class is full, Login Success
-                # QMessageBox.information(self, '로그인 성공', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
+                # Auto Login Function Activation
                 log("*** Login Success ***")
+                if auto_login_check == 0 :
+                    reply = QMessageBox.question(self, '로그인 성공', '자동 로그인 기능을 활성화 하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if reply == QMessageBox.No :
+                        return
+                    elif reply == QMessageBox.Yes :
+                        try :
+                            auto_login(student_id, student_pw)
+                        except :
+                            QMessageBox.warning(self, '자동 로그인', '이미 자동로그인 기능이 활성화 되어 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
+                else :
+                    pass
                 log("*** Get Notice ***")
                 notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
                 driver.get(notice_url) # Open Notice Page

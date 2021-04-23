@@ -4,7 +4,7 @@ import re
 import sys
 import sqlite3
 import webbrowser
-import zipfile\
+import zipfile
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -108,6 +108,8 @@ class LoginWindow(QMainWindow, ui):
         self.setWindowIcon(QIcon('src\icon.ico')) # Icon setting
 
         # Auto login check file (user.db)
+        global auto_login_check
+        auto_login_check = 0
         try :
             fileObj = Path("user.db")
             if fileObj.is_file() == True :
@@ -120,7 +122,6 @@ class LoginWindow(QMainWindow, ui):
                 user_pw = user[0][1]
                 self.login_id.setText(user_id)
                 self.login_pw.setText(user_pw)
-                global auto_login_check
                 auto_login_check = 1
         except :
             pass

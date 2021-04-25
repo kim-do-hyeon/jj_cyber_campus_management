@@ -10,3 +10,4 @@ dist
 *.zip
 *.txt
 chromedriver.exe
+user.db

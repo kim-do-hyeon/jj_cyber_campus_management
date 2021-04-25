@@ -28,8 +28,8 @@ def timestamp():
 
 # Log Function
 def log(message):
-            message = timestamp() + ' > ' + message
-            print(message, file=log_file)
+    message = timestamp() + ' > ' + message
+    print(message, file=log_file)
 
 # Open log file (log.txt)
 log_file = open("log.txt", 'w', -1, 'utf-8')
@@ -37,10 +37,15 @@ log("*** Start Program ***")
 
 # Check Chrome Version
 try :
-    try:
+    try :
         chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
     except :
         chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
+        try :
+            chrome_path = os.getenv('LOCALAPPDATA') + "\Google\Chrome\Application"
+            chrome_version = os.listdir(chrome_path)[0][:2]
+        except :
+            chrome_check = 0
     log("Chrome browser is installed.")
     chrome_check = 1
 except :
@@ -482,7 +487,7 @@ class MainWindow(QMainWindow, ui_main):
     # Call Grade Function
     def grade(self):
         log("*** Get Grade ***")
-        QMessageBox.information(self, "성작 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
+        QMessageBox.information(self, "성적 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
         grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php"
         driver.get(grade_url) # Open Grade Page
         html = driver.page_source

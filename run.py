@@ -41,11 +41,6 @@ try :
         chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
     except :
         chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
-        try :
-            chrome_path = os.getenv('LOCALAPPDATA') + "\Google\Chrome\Application"
-            chrome_version = os.listdir(chrome_path)[0][:2]
-        except :
-            chrome_check = 0
     log("Chrome browser is installed.")
     chrome_check = 1
 except :
@@ -439,7 +434,8 @@ class MainWindow(QMainWindow, ui_main):
                 else :
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))
         self.tableWidget.setSortingEnabled(__sortingEnabled)
-
+        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
     # Call Assign Function
     def assign(self):
         log("*** Get Assignment ***")

@@ -539,11 +539,50 @@ class MainWindow(QMainWindow, ui_main):
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_ItemDoubleClicked(self) :
+        log("DoubleClick > Class Detail")
         row = self.class_listWidget.currentRow()
-        url = class_all[row][1]
-        log("DoubleClick > Class > " + str([row, url]))
-        webbrowser.open(url)
-        log("DoubleClick > Class > Open > " + str(url))
+        class_number = class_all[row][1][-5:]
+        global class_detail_select
+        class_detail_select = []
+        
+        class_name = class_all[row][0]
+        class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_number
+        driver.get(class_process_url)
+        log("Webdriver > Access Url > " + str(class_process_url))
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        for j in range(1,50) :
+            v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
+            a = str(soup.select(v))
+            try :
+                regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
+                title = regex.findall(a)[0]
+
+                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
+                need_time = regex.findall(a)[0]
+
+                try :
+                    regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
+                    my_time = regex.findall(a)[0]
+                except :
+                    my_time = "미수강"
+                
+                check_need_time = int(need_time.replace(":",""))
+                if my_time == "미수강" :
+                    check_my_time = 0
+                else :
+                    check_my_time = int(my_time.replace(":",""))
+                if check_my_time > check_need_time :
+                    check = "PASS"
+                else :
+                    check = "FAIL"
+                log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
+                class_detail_select.append([class_name, title, need_time, my_time, check])
+            except :
+                log("Webdriver > Parse > Class Detail > Error (No Videos)")
+                break
+        self.select_class = SelectClass()
+        self.select_class.show()
     
     def table_ItemDoubleClicked(self) :
         row = self.tableWidget.currentRow()
@@ -832,6 +871,86 @@ class ErrorWindow(QMainWindow, ui_error):
         except :
             log("Error Report > Send > Fail")
             QMessageBox.information(self, "오류제보", "문제가 발생하였습니다.", QMessageBox.Ok, QMessageBox.Ok)
+
+
+
+# Call ui(select_class.ui) File
+ui_select_class_path = "src/select_class.ui"
+ui_select_class = uic.loadUiType(ui_select_class_path)[0]
+
+# Call Gui Enviroment (Select Class Window)
+class SelectClass(QMainWindow, ui_select_class):
+    def __init__(self):
+        log("*** Open Select Class Window ***")
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('src\icon.ico'))
+
+        # Button - Exit
+        self.exit_button.clicked.connect(self.exit)
+
+        # QtableWidget - Select Class Table
+        _translate = QCoreApplication.translate
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setRowCount(len(class_detail_select))
+
+        for i in range(len(class_detail_select)):
+            item = QTableWidgetItem()
+            self.tableWidget.setVerticalHeaderItem(i, item)
+
+        for i in range(5):
+            item = QTableWidgetItem()
+            self.tableWidget.setHorizontalHeaderItem(i, item)
+        item = QTableWidgetItem()
+
+        for i in range(len(class_detail_select)):
+            for j in range(5):
+                self.tableWidget.setItem(i, j, item)
+                item = QTableWidgetItem()
+
+        for i in range(len(class_detail_select)) :
+            item = self.tableWidget.verticalHeaderItem(i)
+            item.setText(_translate("MainWindow", str(i)))
+
+        item = self.tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "강의 이름"))
+        item = self.tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "강의 제목"))
+        item = self.tableWidget.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "인정 시간"))
+        item = self.tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "들은 시간"))
+        item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "통과"))
+        __sortingEnabled = self.tableWidget.isSortingEnabled()
+        self.tableWidget.setSortingEnabled(False)
+
+        self.tableWidget.setColumnWidth(0, 150)
+        self.tableWidget.setColumnWidth(1, 360)
+        self.tableWidget.setColumnWidth(2, 65)
+        self.tableWidget.setColumnWidth(3, 65)
+        self.tableWidget.verticalHeader().setVisible(False)
+
+        for i in range(len(class_detail_select)):
+            for j in range(5):
+                item = self.tableWidget.item(i, j)
+                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
+                if str(class_detail_select[i][j]) == "미수강" or str(class_detail_select[i][j]) == "FAIL":
+                    item.setForeground(QBrush(Qt.red))
+                    item.setBackground(QBrush(Qt.yellow))
+                    item.setText(_translate("MainWindow", str(class_detail_select[i][j])))
+                else :
+                    item.setText(_translate("MainWindow", str(class_detail_select[i][j])))
+        self.tableWidget.setSortingEnabled(__sortingEnabled)
+        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+    
+    # Exit Function (Close Grade Window)
+    def exit(self) :
+        log("*** Exit Select Class Window ***")
+        self.close()
+
+
 
 # Main Function
 def main():

@@ -1,10 +1,10 @@
 # jj_cyber_campus_management
 
 # Direct Download Link
-> https://drive.google.com/file/d/1wT8qh1g5A4kQIedq0XKKWTaea8xLGhPx/view?usp=sharing
+> https://drive.google.com/file/d/1afA66z7xpaqU4a5sk7nfxvm26SzYV5iF/view?usp=sharing
 
 # Run
-* <b>share 폴더 내의 run.exe 파일 실행(Direct Downlaod link 를 통해서 다운 받은경우 share폴더가 아닌 jj_cyber_~ 폴더입니다.)</b>
+* <b>share 폴더 내의 run.exe 파일 실행</b>
 * Chrome(크롬)이 설치되어있어야 합니다.
 * 네트워크(인터넷) 환경에 따라 시간이 소요될수도 있습니다.
 
@@ -55,3 +55,8 @@
 * 사용자의 아이디와 비밀번호는 일체 수집하지 않습니다.
 * 오류 제보시, 사용자의 학번, 이름, 전화 번호를 수집할수 있습니다. (비공개 / 공개 선택 가능)
 * 오류 제보시 필수적으로 사용자의 컴퓨터의 정보를 수집합니다. (욕설 및 비방 방지를 위해 수집)
+
+# Update
+* 202104240135 - Windows 10 Chrome install error fix
+* 202104242130 - Create Error Bypass Program
+* 202104260220 - Bug fix & Add sort function & Update Select Class

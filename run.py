@@ -950,8 +950,6 @@ class SelectClass(QMainWindow, ui_select_class):
         log("*** Exit Select Class Window ***")
         self.close()
 
-
-
 # Main Function
 def main():
     app = QApplication(sys.argv)

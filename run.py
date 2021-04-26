@@ -245,72 +245,11 @@ class LoginWindow(QMainWindow, ui):
                     notice_value.append([name, timeago, message, notice_url_value[i]])
 
                 global class_id
-                global class_detail
                 class_id = []
-                class_detail = []
 
-                # Get class id
+                # # Get class id
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
-
-                # Class Detail (Run time, etc)
-                log("*** Get Class Detail ***")
-                for i in range(len(class_id)) :
-                    class_name = class_all[i][0]
-                    class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[i]
-                    driver.get(class_process_url)
-                    log("Webdriver > Access Url > " + str(class_process_url))
-                    html = driver.page_source
-                    soup = BeautifulSoup(html, 'html.parser')
-                    for j in range(1,50) :
-                        v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
-                        a = str(soup.select(v))
-                        try :
-                            regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
-                            title = regex.findall(a)[0]
-
-                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
-                            need_time = regex.findall(a)[0]
-
-                            try :
-                                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
-                                my_time = regex.findall(a)[0]
-                            except :
-                                my_time = "미수강"
-                            
-                            check_need_time = int(need_time.replace(":",""))
-                            if my_time == "미수강" :
-                                check_my_time = 0
-                            else :
-                                check_my_time = int(my_time.replace(":",""))
-                            if check_my_time > check_need_time :
-                                check = "PASS"
-                            else :
-                                check = "FAIL"
-                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
-                            class_detail.append([class_name, title, need_time, my_time, check])
-                        except :
-                            log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                            break
-
-                # Get Link for Watch Cyber class
-                log("*** Get Watch Video Link ***")
-                video = []
-                for i in range(len(class_id)) :
-                    video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
-                    driver.get(video_url)
-                    log("Webdriver > Access Url > " + str(video_url))
-                    html = driver.page_source
-                    soup = BeautifulSoup(html, 'html.parser')
-                    for j in range(100) :
-                        html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
-                        url_soup = BeautifulSoup(html_1)
-                        for a in url_soup.find_all('a', href=True):
-                            log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
-                            video.append([class_id[i], a['href']])
-                
-                for i in range(len(class_detail)) :
-                    class_detail[i].append(video[i])
 
                 # Call Main Window
                 self.management = MainWindow()
@@ -381,61 +320,6 @@ class MainWindow(QMainWindow, ui_main):
         for i in range(len(notice_value)) :
             self.notice_listWidget.addItem(notice_value[i][0])
 
-        # QtableWidget - Class Table
-        _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(5)
-        self.tableWidget.setRowCount(len(class_detail))
-
-        for i in range(len(class_detail)):
-            item = QTableWidgetItem()
-            self.tableWidget.setVerticalHeaderItem(i, item)
-
-        for i in range(5):
-            item = QTableWidgetItem()
-            self.tableWidget.setHorizontalHeaderItem(i, item)
-        item = QTableWidgetItem()
-
-        for i in range(len(class_detail)):
-            for j in range(5):
-                self.tableWidget.setItem(i, j, item)
-                item = QTableWidgetItem()
-
-        for i in range(len(class_detail)) :
-            item = self.tableWidget.verticalHeaderItem(i)
-            item.setText(_translate("MainWindow", str(i)))
-
-        item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "강의 이름"))
-        item = self.tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "강의 제목"))
-        item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "인정 시간"))
-        item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "들은 시간"))
-        item = self.tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "통과"))
-        __sortingEnabled = self.tableWidget.isSortingEnabled()
-        self.tableWidget.setSortingEnabled(False)
-
-        self.tableWidget.setColumnWidth(0, 150)
-        self.tableWidget.setColumnWidth(1, 360)
-        self.tableWidget.setColumnWidth(2, 65)
-        self.tableWidget.setColumnWidth(3, 65)
-        self.tableWidget.verticalHeader().setVisible(False)
-
-        for i in range(len(class_detail)):
-            for j in range(5):
-                item = self.tableWidget.item(i, j)
-                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
-                if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "FAIL":
-                    item.setForeground(QBrush(Qt.red))
-                    item.setBackground(QBrush(Qt.yellow))
-                    item.setText(_translate("MainWindow", str(class_detail[i][j])))
-                else :
-                    item.setText(_translate("MainWindow", str(class_detail[i][j])))
-        self.tableWidget.setSortingEnabled(__sortingEnabled)
-        self.tableWidget.setSortingEnabled(True)
-        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
     # Call Assign Function
     def assign(self):
         log("*** Get Assignment ***")
@@ -581,36 +465,62 @@ class MainWindow(QMainWindow, ui_main):
             except :
                 log("Webdriver > Parse > Class Detail > Error (No Videos)")
                 break
-        self.select_class = SelectClass()
-        self.select_class.show()
-    
-    def table_ItemDoubleClicked(self) :
-        row = self.tableWidget.currentRow()
-        column = self.tableWidget.currentColumn()
-        msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
-        need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
-        my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
-        log("DoubleClick > Class Detail > " + str([msgbox_title, need_time, my_time]))
-        if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
-            reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                log("DoubleClick > Class Detail > Question > Y")
-                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')     
-                webbrowser.open(url)
-                log("DoubleClick > Class Detail > Open > " + str(url))
-            else:
-                log("DoubleClick > Class Detail > Question > N")
-                return
-        else :
-            reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                log("DoubleClick > Class Detail > Question > Y")
-                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
-                webbrowser.open(url)
-                log("DoubleClick > Class Detail > Open > " + str(url))
-            else:
-                log("DoubleClick > Class Detail > Question > N")
-                return
+
+        # QtableWidget - Class Table
+        _translate = QCoreApplication.translate
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setRowCount(len(class_detail_select))
+
+        for i in range(len(class_detail_select)):
+            item = QTableWidgetItem()
+            self.tableWidget.setVerticalHeaderItem(i, item)
+
+        for i in range(5):
+            item = QTableWidgetItem()
+            self.tableWidget.setHorizontalHeaderItem(i, item)
+        item = QTableWidgetItem()
+
+        for i in range(len(class_detail_select)):
+            for j in range(5):
+                self.tableWidget.setItem(i, j, item)
+                item = QTableWidgetItem()
+
+        for i in range(len(class_detail_select)) :
+            item = self.tableWidget.verticalHeaderItem(i)
+            item.setText(_translate("MainWindow", str(i)))
+
+        item = self.tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "강의 이름"))
+        item = self.tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "강의 제목"))
+        item = self.tableWidget.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "인정 시간"))
+        item = self.tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "들은 시간"))
+        item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "통과"))
+        __sortingEnabled = self.tableWidget.isSortingEnabled()
+        self.tableWidget.setSortingEnabled(False)
+
+        self.tableWidget.setColumnWidth(0, 150)
+        self.tableWidget.setColumnWidth(1, 360)
+        self.tableWidget.setColumnWidth(2, 65)
+        self.tableWidget.setColumnWidth(3, 65)
+        self.tableWidget.verticalHeader().setVisible(False)
+
+        for i in range(len(class_detail_select)):
+            for j in range(5):
+                item = self.tableWidget.item(i, j)
+                if str(class_detail_select[i][j]) == "미수강" or str(class_detail_select[i][j]) == "FAIL":
+                    item.setForeground(QBrush(Qt.red))
+                    item.setBackground(QBrush(Qt.yellow))
+                    item.setText(_translate("MainWindow", str(class_detail_select[i][j])))
+                else :
+                    item.setText(_translate("MainWindow", str(class_detail_select[i][j])))
+                item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
+        self.tableWidget.setSortingEnabled(__sortingEnabled)
+        self.tableWidget.setSortingEnabled(True)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
     
     # Exit Function (Close Program)
     def exit(self) :

@@ -131,6 +131,15 @@ class LoginWindow(QMainWindow, ui):
 
         # Login Buttons
         self.login_button.clicked.connect(self.login)
+        self.login_id.returnPressed.connect(self.listener_login_id)
+        self.login_pw.returnPressed.connect(self.listener_login_pw)
+    
+
+    def listener_login_id(self) :
+        self.login()
+
+    def listener_login_pw(self) :
+        self.login()
 
     # Login Function
     def login(self) :

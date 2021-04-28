@@ -37,34 +37,6 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
-# File Update
-f = open("src/version", "r")
-current_version = f.read()
-
-version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
-response = requests.get(version_url)
-webpage = urllib.request.urlopen(version_url)
-soup = BeautifulSoup(webpage, 'html.parser')
-latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
-
-if current_version != latest_version :
-    print("Version is Changed!")
-    print("Do you want to download latest version? Y/N")
-    answer = str(input())
-    if answer == "y" or answer == "Y" :
-        print("Yes")
-    elif answer == "n" or answer == "N":
-        print("No")
-    else :
-        print("Wrong Input")
-
-    file_download_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/raw/main/share/run.exe"
-    download(file_download_url, 'run.exe')
-    os.system("run.exe")
-    quit()
-
-
-
 # Check Chrome Version
 try :
     try :
@@ -181,6 +153,7 @@ class LoginWindow(QMainWindow, ui):
             log("Login > School Password is blank")
         else : # login
             log("Login > Try Login")
+            args = ["hide_console", ]
             options = webdriver.ChromeOptions()
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
@@ -188,7 +161,7 @@ class LoginWindow(QMainWindow, ui):
             log("Webdriver > headless, window-size=1920x1080, disable-gpu options")
             global driver
             try : 
-                driver = webdriver.Chrome('chromedriver.exe', chrome_options=options) # Run chromedriver.exe
+                driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
                 log("Webdriver > Try to run Chrome")
                 QMessageBox.information(self, 'Notice', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
             except :
@@ -654,6 +627,7 @@ class MainWindow(QMainWindow, ui_main):
     # Exit Function (Close Program)
     def exit(self) :
         log("*** Exit Program ***")
+        driver.service.stop ()
         self.close()
 
 # Call ui(assign.ui) File

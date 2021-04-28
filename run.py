@@ -17,21 +17,6 @@ from PyQt5.QtWidgets import *
 from requests import get
 from pathlib import Path
 
-
-# File Update
-f = open("src/version", "r")
-current_version = f.read()
-
-version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
-response = requests.get(version_url)
-webpage = urllib.request.urlopen(version_url)
-soup = BeautifulSoup(webpage, 'html.parser')
-latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
-
-if current_version != latest_version :
-    print("Version is Changed!")
-    quit()
-
 # File Download Function
 def download(url, file_name):
     with open(file_name, "wb") as file:
@@ -51,6 +36,34 @@ def log(message):
 # Open log file (log.txt)
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
+
+# File Update
+f = open("src/version", "r")
+current_version = f.read()
+
+version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
+response = requests.get(version_url)
+webpage = urllib.request.urlopen(version_url)
+soup = BeautifulSoup(webpage, 'html.parser')
+latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
+
+if current_version != latest_version :
+    print("Version is Changed!")
+    print("Do you want to download latest version? Y/N")
+    answer = str(input())
+    if answer == "y" or answer == "Y" :
+        print("Yes")
+    elif answer == "n" or answer == "N":
+        print("No")
+    else :
+        print("Wrong Input")
+
+    file_download_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/raw/main/share/run.exe"
+    download(file_download_url, 'run.exe')
+    os.system("run.exe")
+    quit()
+
+
 
 # Check Chrome Version
 try :

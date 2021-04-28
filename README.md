@@ -1,7 +1,7 @@
 # jj_cyber_campus_management
 
 # Direct Download Link
-> https://drive.google.com/file/d/1SrD5rBqQMVeqQL64JmvoSxUq7BVoVwj9/view?usp=sharing
+> https://drive.google.com/file/d/1ZKlYhdNWefDTjoXdPoC2Q5QwiVV2_Dee/view?usp=sharing
 
 # Run
 * <b>share 폴더 내의 run.exe 파일 실행</b>

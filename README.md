@@ -60,3 +60,4 @@
 * 202104240135 - Windows 10 Chrome install error fix
 * 202104242130 - Create Error Bypass Program
 * 202104260220 - Bug fix & Add sort function & Update Select Class
+* 202104282254 - Add auto update function & sqlit ui

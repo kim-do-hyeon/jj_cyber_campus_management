@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1260</width>
+    <width>1150</width>
     <height>520</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1260</width>
+    <width>1150</width>
     <height>520</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1260</width>
+    <width>1150</width>
     <height>520</height>
    </size>
   </property>
@@ -34,32 +34,6 @@
       <width>150</width>
       <height>250</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="notice_listWidget">
-    <property name="geometry">
-     <rect>
-      <x>960</x>
-      <y>30</y>
-      <width>290</width>
-      <height>181</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="new_message_label">
-    <property name="geometry">
-     <rect>
-      <x>960</x>
-      <y>10</y>
-      <width>290</width>
-      <height>12</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>새로운 메시지</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="class_label">
@@ -227,8 +201,8 @@
     <property name="geometry">
      <rect>
       <x>960</x>
-      <y>250</y>
-      <width>290</width>
+      <y>130</y>
+      <width>171</width>
       <height>31</height>
      </rect>
     </property>
@@ -240,9 +214,9 @@
     <property name="geometry">
      <rect>
       <x>960</x>
-      <y>230</y>
-      <width>290</width>
-      <height>12</height>
+      <y>110</y>
+      <width>171</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
@@ -255,8 +229,8 @@
    <widget class="QPushButton" name="exit_button">
     <property name="geometry">
      <rect>
-      <x>1169</x>
-      <y>472</y>
+      <x>1050</x>
+      <y>470</y>
       <width>81</width>
       <height>41</height>
      </rect>
@@ -282,8 +256,8 @@
     <property name="geometry">
      <rect>
       <x>960</x>
-      <y>320</y>
-      <width>290</width>
+      <y>200</y>
+      <width>171</width>
       <height>31</height>
      </rect>
     </property>
@@ -295,13 +269,42 @@
     <property name="geometry">
      <rect>
       <x>960</x>
-      <y>300</y>
-      <width>290</width>
-      <height>12</height>
+      <y>180</y>
+      <width>171</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>성적 확인</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="message_button">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>60</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>메시지</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="new_message_label">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>30</y>
+      <width>171</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>새로운 메시지 확인</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

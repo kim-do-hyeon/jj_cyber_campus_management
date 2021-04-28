@@ -5,6 +5,8 @@ import sys
 import sqlite3
 import webbrowser
 import zipfile
+import requests
+import urllib.request
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -151,6 +153,7 @@ class LoginWindow(QMainWindow, ui):
             log("Login > School Password is blank")
         else : # login
             log("Login > Try Login")
+            args = ["hide_console", ]
             options = webdriver.ChromeOptions()
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
@@ -158,7 +161,7 @@ class LoginWindow(QMainWindow, ui):
             log("Webdriver > headless, window-size=1920x1080, disable-gpu options")
             global driver
             try : 
-                driver = webdriver.Chrome('chromedriver.exe', chrome_options=options) # Run chromedriver.exe
+                driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
                 log("Webdriver > Try to run Chrome")
                 QMessageBox.information(self, 'Notice', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
             except :
@@ -226,32 +229,6 @@ class LoginWindow(QMainWindow, ui):
                             QMessageBox.warning(self, '자동 로그인', '이미 자동로그인 기능이 활성화 되어 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 else :
                     pass
-                log("*** Get Notice ***")
-                notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
-                driver.get(notice_url) # Open Notice Page
-                log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubnotification/")
-                html = driver.page_source
-                soup = BeautifulSoup(html, 'html.parser')
-
-                # Notice Value Url
-                temp = str(soup.find_all(class_="well wellnopadding"))
-                temp = BeautifulSoup(temp)
-                notice_url_value = []
-
-                global notice_value
-                notice_value = []
-
-                for a in temp.find_all('a', href=True):
-                    notice_url_value.append(a['href'])
-                notice_url_value.pop()
-
-                for i in range(len(notice_url_value)): # Get Notice Detail
-                    name = (soup.find_all(class_="media-heading")[i].get_text())
-                    timeago = (soup.find_all(class_="timeago")[i].get_text())
-                    message = str(soup.find_all(class_="media-body")[i])
-                    message = message.partition("<p>")[-1].replace("</p></div>","")
-                    log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
-                    notice_value.append([name, timeago, message, notice_url_value[i]])
 
                 global class_id
                 global class_detail
@@ -339,11 +316,11 @@ class MainWindow(QMainWindow, ui_main):
         self.setWindowIcon(QIcon('src\icon.ico'))
 
         # Item Double Clicked Function
-        self.notice_listWidget.itemDoubleClicked.connect(self.notice_ItemDoubleClicked)
         self.class_listWidget.itemDoubleClicked.connect(self.class_ItemDoubleClicked)
         self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
 
         # Button
+        self.message_button.clicked.connect(self.message)
         self.assign_button.clicked.connect(self.assign)
         self.grade_button.clicked.connect(self.grade)
         self.error_send.clicked.connect(self.error)
@@ -386,9 +363,6 @@ class MainWindow(QMainWindow, ui_main):
 
         for i in range(len(class_all)) :
             self.class_listWidget.addItem(class_all[i][0])
-
-        for i in range(len(notice_value)) :
-            self.notice_listWidget.addItem(notice_value[i][0])
 
         # QtableWidget - Class Table
         _translate = QCoreApplication.translate
@@ -524,28 +498,15 @@ class MainWindow(QMainWindow, ui_main):
         self.grade = GradeWindow()
         self.grade.show()
 
+    # Call New Message Window
+    def message(self):
+        self.new_message = MessageWindow()
+        self.new_message.show()
+
     # Call Error Window
     def error(self) :
         self.error_window = ErrorWindow()
         self.error_window.show()
-
-    def notice_ItemDoubleClicked(self) :
-        get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
-        driver.get(get_notice_url)
-        log("DoubleClick > Notice > " + str([notice_value[self.notice_listWidget.currentRow()][0], notice_value[self.notice_listWidget.currentRow()][1], notice_value[self.notice_listWidget.currentRow()][2], notice_value[self.notice_listWidget.currentRow()][3]]))
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        try : 
-            title = soup.find_all(class_="subject")[0].get_text()
-            time = (soup.select("#region-main > div > div > div > div.well > div:nth-child(2) > div.date")[0].get_text())
-            time = time.replace("\n", "").replace(" ", "").replace("\t","")
-            time = (time[:14] + " " + time[14:])
-            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + " (" + time + ")" + "\n"  + str(soup.find_all(class_="text_to_html")[0].get_text())
-            message = message.replace(".", ".\n")
-        except :
-            title = self.notice_listWidget.currentItem().text()
-            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
-        QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     def class_ItemDoubleClicked(self) :
         log("DoubleClick > Class Detail")
@@ -625,6 +586,78 @@ class MainWindow(QMainWindow, ui_main):
     def exit(self) :
         log("*** Exit Program ***")
         self.close()
+
+
+# Call ui(message.ui) File
+ui_message_path = "src/message.ui"
+ui_message = uic.loadUiType(ui_message_path)[0]
+
+# Call Gui Enviroment (MessageWindow)
+class MessageWindow(QMainWindow, ui_message):
+    def __init__(self):
+        log("*** Open Message Window ***")
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowIcon(QIcon('src\icon.ico'))
+
+        self.notice_listWidget.itemDoubleClicked.connect(self.notice_ItemDoubleClicked)
+
+        # Button - Exit
+        self.exit_button.clicked.connect(self.exit)
+
+
+        notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
+        driver.get(notice_url) # Open Notice Page
+        log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubnotification/")
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Notice Value Url
+        temp = str(soup.find_all(class_="well wellnopadding"))
+        temp = BeautifulSoup(temp)
+        notice_url_value = []
+
+        global notice_value
+        notice_value = []
+
+        for a in temp.find_all('a', href=True):
+            notice_url_value.append(a['href'])
+        notice_url_value.pop()
+
+        for i in range(len(notice_url_value)): # Get Notice Detail
+            name = (soup.find_all(class_="media-heading")[i].get_text())
+            timeago = (soup.find_all(class_="timeago")[i].get_text())
+            message = str(soup.find_all(class_="media-body")[i])
+            message = message.partition("<p>")[-1].replace("</p></div>","")
+            log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
+            notice_value.append([name, timeago, message, notice_url_value[i]])
+
+        for i in range(len(notice_value)) :
+            self.notice_listWidget.addItem(notice_value[i][0])
+
+    def notice_ItemDoubleClicked(self) :
+        get_notice_url = notice_value[self.notice_listWidget.currentRow()][3]
+        driver.get(get_notice_url)
+        log("DoubleClick > Notice > " + str([notice_value[self.notice_listWidget.currentRow()][0], notice_value[self.notice_listWidget.currentRow()][1], notice_value[self.notice_listWidget.currentRow()][2], notice_value[self.notice_listWidget.currentRow()][3]]))
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        try : 
+            title = soup.find_all(class_="subject")[0].get_text()
+            time = (soup.select("#region-main > div > div > div > div.well > div:nth-child(2) > div.date")[0].get_text())
+            time = time.replace("\n", "").replace(" ", "").replace("\t","")
+            time = (time[:14] + " " + time[14:])
+            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + " (" + time + ")" + "\n"  + str(soup.find_all(class_="text_to_html")[0].get_text())
+            message = message.replace(".", ".\n")
+        except :
+            title = self.notice_listWidget.currentItem().text()
+            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
+        QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
+
+    # Exit Function (Close Assignment Window)
+    def exit(self) :
+        log("*** Exit Assignment Window ***")
+        self.close()
+
 
 # Call ui(assign.ui) File
 ui_assign_path = "src/assign.ui"

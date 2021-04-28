@@ -107,10 +107,10 @@ class update(QMainWindow, ui_update):
         log("*** Run Main File ***")
         path = os.path.join(os.path.abspath(os.getcwd()), 'src\\file.exe')
         subprocess.call(path)
-        subprocess.call("taskkill /f /im update.exe")
-        
-        
+        os.system("taskkill /f /im chromedriver.exe")
+        subprocess.call("taskkill /f /im run.exe")
 
+    
 def main():
     app = QApplication(sys.argv)
     window = update()

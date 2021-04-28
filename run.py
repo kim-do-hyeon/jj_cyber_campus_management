@@ -17,10 +17,6 @@ from PyQt5.QtWidgets import *
 from requests import get
 from pathlib import Path
 
-try :
-    os.system('taskkill /f /im update.exe')
-except :
-    pass
 
 # File Download Function
 def download(url, file_name):

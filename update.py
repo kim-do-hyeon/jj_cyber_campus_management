@@ -103,11 +103,13 @@ class update(QMainWindow, ui_update):
         self.run_file()
 
     def run_file(self):
+        self.close()
         log("*** Run Main File ***")
         path = os.path.join(os.path.abspath(os.getcwd()), 'src\\file.exe')
         subprocess.call(path)
-        self.close()
-        os.quit()
+        os.system("taskkill /f /im update.exe")
+        
+        
 
 def main():
     app = QApplication(sys.argv)

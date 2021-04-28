@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import *
 from requests import get
 from pathlib import Path
 
+
 # File Download Function
 def download(url, file_name):
     with open(file_name, "wb") as file:
@@ -35,7 +36,7 @@ def log(message):
 
 # Open log file (log.txt)
 log_file = open("log.txt", 'w', -1, 'utf-8')
-log("*** Start Program ***")
+log("*** Start Main Program ***")
 
 # Check Chrome Version
 try :

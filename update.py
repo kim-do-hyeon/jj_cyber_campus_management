@@ -107,7 +107,7 @@ class update(QMainWindow, ui_update):
         log("*** Run Main File ***")
         path = os.path.join(os.path.abspath(os.getcwd()), 'src\\file.exe')
         subprocess.call(path)
-        os.system("taskkill /f /im update.exe")
+        subprocess.call("taskkill /f /im update.exe")
         
         
 

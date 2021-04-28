@@ -5,6 +5,8 @@ import sys
 import sqlite3
 import webbrowser
 import zipfile
+import requests
+import urllib.request
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -14,6 +16,21 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 from requests import get
 from pathlib import Path
+
+
+# File Update
+f = open("src/version", "r")
+current_version = f.read()
+
+version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
+response = requests.get(version_url)
+webpage = urllib.request.urlopen(version_url)
+soup = BeautifulSoup(webpage, 'html.parser')
+latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
+
+if current_version != latest_version :
+    print("Version is Changed!")
+    quit()
 
 # File Download Function
 def download(url, file_name):

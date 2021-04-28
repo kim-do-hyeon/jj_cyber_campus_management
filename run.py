@@ -229,7 +229,6 @@ class LoginWindow(QMainWindow, ui):
                             QMessageBox.warning(self, '자동 로그인', '이미 자동로그인 기능이 활성화 되어 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
                 else :
                     pass
-                log("*** Get Notice ***")
 
                 global class_id
                 global class_detail

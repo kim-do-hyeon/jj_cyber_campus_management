@@ -3,6 +3,7 @@ import os
 import sys
 import requests
 import urllib.request
+import subprocess
 from bs4 import BeautifulSoup
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
@@ -41,26 +42,30 @@ class update(QMainWindow, ui_update):
         self.update()
 
     def update(self):
-        f = open("src/version", "r")
-        current_version = f.read()
-        log("Current Version : " + str(current_version))
-        version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
-        response = requests.get(version_url)
-        webpage = urllib.request.urlopen(version_url)
-        soup = BeautifulSoup(webpage, 'html.parser')
-        latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
-        log("Latest Version : " + str(latest_version))
-        if current_version != latest_version :
-            reply = QMessageBox.question(self, '업데이트 확인', '새로운 버전을 다운받겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes :
-                log("Download New Version : " + str(latest_version))
-                self.update_file()
-            elif reply == QMessageBox.No :
-                log("No Download")
-                self.close()
-                self.run_file()
+        fileObj = Path("src/file.exe")
+        if fileObj.is_file() == False :
+            QMessageBox.information(self, 'Download', '새로운 버전을 다운 받습니다.', QMessageBox.Ok, QMessageBox.Ok)
+            self.update_file()
         else :
-            self.run_file()
+            f = open("src/version", "r")
+            current_version = f.read()
+            log("Current Version : " + str(current_version))
+            version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
+            response = requests.get(version_url)
+            webpage = urllib.request.urlopen(version_url)
+            soup = BeautifulSoup(webpage, 'html.parser')
+            latest_version = soup.find_all(class_='blob-code blob-code-inner js-file-line')[0].get_text()
+            log("Latest Version : " + str(latest_version))
+            if current_version != latest_version :
+                reply = QMessageBox.question(self, '업데이트 확인', '새로운 버전을 다운받겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if reply == QMessageBox.Yes :
+                    log("Download New Version : " + str(latest_version))
+                    self.update_file()
+                elif reply == QMessageBox.No :
+                    log("No Download")
+                    self.run_file()
+            else :
+                self.run_file()
 
     def update_file(self):
         try :
@@ -68,7 +73,7 @@ class update(QMainWindow, ui_update):
             os.remove("src/file.exe")
         except:
             pass
-        link = "https://git.pdm0205.com/pental/jj_cyber_management/-/raw/master/share/run.exe?inline=false"
+        link = "https://git.pdm0205.com/pental/jj_cyber_management/-/raw/master/share/src/file.exe?inline=false"
         path = "src/file.exe"
         with open(path, 'wb') as f:
             log("Download New Version File")
@@ -85,14 +90,14 @@ class update(QMainWindow, ui_update):
                     done = int(50 * dl / total_length)
                     self.update_bar.setValue(done * 2)
             log("Download Success")
-        self.close() 
         self.run_file()
         
     def run_file(self):
+        self.close()
         log("Run Main File")
         path = os.getcwd() + "/src/file.exe"
         log("Path : " + str(path))
-        os.system(path)
+        subprocess.call(path)
         quit()
 
 def main():

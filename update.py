@@ -51,6 +51,7 @@ class update(QMainWindow, ui_update):
             current_version = f.read()
             log("Current Version : " + str(current_version))
             version_url = "https://github.com/kim-do-hyeon/jj_cyber_campus_management/blob/main/src/version"
+            global latest_version
             response = requests.get(version_url)
             webpage = urllib.request.urlopen(version_url)
             soup = BeautifulSoup(webpage, 'html.parser')
@@ -90,6 +91,9 @@ class update(QMainWindow, ui_update):
                     done = int(50 * dl / total_length)
                     self.update_bar.setValue(done * 2)
             log("Download Success")
+        f = open('src/version', mode='wt', encoding='utf-8')
+        f.write(latest_version)
+        f.close()
         self.run_file()
         
     def run_file(self):

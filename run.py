@@ -279,8 +279,6 @@ class LoginWindow(QMainWindow, ui):
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
-git config --global user.email "you@example.com"
-  git config --global user.name "Your Name"
                 # Get Link for Watch Cyber class
                 log("*** Get Watch Video Link ***")
                 video = []

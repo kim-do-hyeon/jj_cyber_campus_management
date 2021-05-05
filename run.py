@@ -279,6 +279,7 @@ class LoginWindow(QMainWindow, ui):
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
+                print(class_detail)
                 # Get Link for Watch Cyber class
                 log("*** Get Watch Video Link ***")
                 video = []
@@ -550,7 +551,7 @@ class MainWindow(QMainWindow, ui_main):
                 class_detail_select.append([class_name, title, need_time, my_time, check])
             except :
                 log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                break
+                j += 1
         self.select_class = SelectClass()
         self.select_class.show()
     

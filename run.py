@@ -249,7 +249,7 @@ class LoginWindow(QMainWindow, ui):
                     log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
-                    for j in range(1,50) :
+                    for j in range(1, 50) :
                         v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
                         a = str(soup.select(v))
                         try :
@@ -278,8 +278,9 @@ class LoginWindow(QMainWindow, ui):
                             class_detail.append([class_name, title, need_time, my_time, check])
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                            break
-
+                            j += 1
+git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
                 # Get Link for Watch Cyber class
                 log("*** Get Watch Video Link ***")
                 video = []

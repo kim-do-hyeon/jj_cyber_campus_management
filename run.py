@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import *
 from requests import get
 from pathlib import Path
 
-
 # File Download Function
 def download(url, file_name):
     with open(file_name, "wb") as file:
@@ -36,7 +35,7 @@ def log(message):
 
 # Open log file (log.txt)
 log_file = open("log.txt", 'w', -1, 'utf-8')
-log("*** Start Main Program ***")
+log("*** Start Program ***")
 
 # Check Chrome Version
 try :
@@ -279,7 +278,7 @@ class LoginWindow(QMainWindow, ui):
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
-                print(class_detail)
+
                 # Get Link for Watch Cyber class
                 log("*** Get Watch Video Link ***")
                 video = []
@@ -625,11 +624,23 @@ class MessageWindow(QMainWindow, ui_message):
             notice_url_value.append(a['href'])
         notice_url_value.pop()
 
-        for i in range(len(notice_url_value)): # Get Notice Detail
-            name = (soup.find_all(class_="media-heading")[i].get_text())
-            timeago = (soup.find_all(class_="timeago")[i].get_text())
-            message = str(soup.find_all(class_="media-body")[i])
-            message = message.partition("<p>")[-1].replace("</p></div>","")
+        for i in range(15): # Get Notice Detail
+            try :
+                name = soup.find_all(class_="media-heading")[i].get_text()
+            except :
+                name = "error"
+            try :
+                timeago = (soup.find_all(class_="timeago")[i].get_text())
+            except :
+                timeago = "error"
+            try :
+                message = str(soup.find_all(class_="media-body")[i])
+            except :
+                message = "error"
+            try :
+                message = message.partition("<p>")[-1].replace("</p></div>","")
+            except :
+                message = "error"
             log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
             notice_value.append([name, timeago, message, notice_url_value[i]])
 

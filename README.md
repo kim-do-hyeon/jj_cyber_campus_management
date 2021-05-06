@@ -61,3 +61,4 @@
 * 202104242130 - Create Error Bypass Program
 * 202104260220 - Bug fix & Add sort function & Update Select Class
 * 202104282254 - Add auto update function & sqlit ui
+* 202105062136 - Ver 1.44 Update (Hide Cmd & Bug fix)

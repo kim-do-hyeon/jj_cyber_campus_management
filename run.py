@@ -665,9 +665,9 @@ class MessageWindow(QMainWindow, ui_message):
             message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
-    # Exit Function (Close Assignment Window)
+    # Exit Function (Close Message Window)
     def exit(self) :
-        log("*** Exit Assignment Window ***")
+        log("*** Exit Message Window ***")
         self.close()
 
 

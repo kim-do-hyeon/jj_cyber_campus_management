@@ -259,10 +259,8 @@ class LoginWindow(QMainWindow, ui):
                         try :
                             regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
                             title = regex.findall(a)[0]
-
                             regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
                             need_time = regex.findall(a)[0]
-
                             try :
                                 regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
                                 my_time = regex.findall(a)[0]
@@ -278,11 +276,13 @@ class LoginWindow(QMainWindow, ui):
                                 check = "O"
                             else :
                                 check = "X"
-                            deadline_txt = str(deadline[j-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
+                            try:
+                                deadline_txt = str(deadline[j-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
+                            except :
+                                deadline_txt = str(deadline[-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
                             log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
                             class_detail.append([class_name, title, need_time, my_time, deadline_txt, check])
                         except :
-                            log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
 
                 # Get Link for Watch Cyber class

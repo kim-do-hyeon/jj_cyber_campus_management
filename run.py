@@ -248,19 +248,16 @@ class LoginWindow(QMainWindow, ui):
                     log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
-                    time_url = "http://cyber.jj.ac.kr/course/view.php?id=" + class_id[i]
-                    driver.get(time_url)
-                    html_time = driver.page_source
-                    soup_time = BeautifulSoup(html_time, 'html.parser')
-                    deadline = soup_time.find_all(class_="text-ubstrap")
                     for j in range(1, 100) :
                         v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
                         a = str(soup.select(v))
                         try :
                             regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
                             title = regex.findall(a)[0]
+
                             regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
                             need_time = regex.findall(a)[0]
+
                             try :
                                 regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
                                 my_time = regex.findall(a)[0]
@@ -276,13 +273,10 @@ class LoginWindow(QMainWindow, ui):
                                 check = "O"
                             else :
                                 check = "X"
-                            try:
-                                deadline_txt = str(deadline[j-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
-                            except :
-                                deadline_txt = str(deadline[-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
-                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
-                            class_detail.append([class_name, title, need_time, my_time, deadline_txt, check])
+                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
+                            class_detail.append([class_name, title, need_time, my_time, check])
                         except :
+                            log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
 
                 # Get Link for Watch Cyber class
@@ -309,16 +303,17 @@ class LoginWindow(QMainWindow, ui):
                 self.management.show()
                 self.close()
 
-# Call ui(main.ui) File
-ui_main_path = "src/main.ui"
-ui_main = uic.loadUiType(ui_main_path)[0]
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignCenter
 
+
+
+# Call ui(main.ui) File
+ui_main_path = "src/main.ui"
+ui_main = uic.loadUiType(ui_main_path)[0]
 
 # Call Gui Enviroment (MainWindow)
 class MainWindow(QMainWindow, ui_main):
@@ -330,7 +325,7 @@ class MainWindow(QMainWindow, ui_main):
 
         # Item Double Clicked Function
         self.class_listWidget.itemDoubleClicked.connect(self.class_ItemDoubleClicked)
-        self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
+        # self.tableWidget.cellDoubleClicked.connect(self.table_ItemDoubleClicked)
 
         # Button
         self.message_button.clicked.connect(self.message)
@@ -379,20 +374,20 @@ class MainWindow(QMainWindow, ui_main):
 
         # QtableWidget - Class Table
         _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(len(class_detail))
 
         for i in range(len(class_detail)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(6):
+        for i in range(5):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
         for i in range(len(class_detail)):
-            for j in range(6):
+            for j in range(5):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
@@ -405,26 +400,22 @@ class MainWindow(QMainWindow, ui_main):
         item = self.tableWidget.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "강의 제목"))
         item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "요구"))
+        item.setText(_translate("MainWindow", "인정 시간"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "학습"))
+        item.setText(_translate("MainWindow", "들은 시간"))
         item = self.tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "기간"))
-        item = self.tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "통과"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
-        self.tableWidget.setColumnWidth(0, 130)
-        self.tableWidget.setColumnWidth(1, 180)
-        self.tableWidget.setColumnWidth(2, 55)
-        self.tableWidget.setColumnWidth(3, 55)
-        self.tableWidget.setColumnWidth(4, 280)
-        self.tableWidget.setColumnWidth(5, 50)
+        self.tableWidget.setColumnWidth(0, 150)
+        self.tableWidget.setColumnWidth(1, 360)
+        self.tableWidget.setColumnWidth(2, 65)
+        self.tableWidget.setColumnWidth(3, 65)
         self.tableWidget.verticalHeader().setVisible(False)
 
         for i in range(len(class_detail)):
-            for j in range(6):
+            for j in range(5):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "X":
@@ -433,11 +424,12 @@ class MainWindow(QMainWindow, ui_main):
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))
                 else :
                     item.setText(_translate("MainWindow", str(class_detail[i][j])))
-        delegate = AlignDelegate(self.tableWidget)
-        self.tableWidget.setItemDelegate(delegate)
         self.tableWidget.setSortingEnabled(__sortingEnabled)
         self.tableWidget.setSortingEnabled(True)
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+        delegate = AlignDelegate(self.tableWidget)
+        self.tableWidget.setItemDelegate(delegate)
+
     # Call Assign Function
     def assign(self):
         log("*** Get Assignment ***")
@@ -540,7 +532,7 @@ class MainWindow(QMainWindow, ui_main):
         log("Webdriver > Access Url > " + str(class_process_url))
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        for j in range(1,50) :
+        for j in range(1,100) :
             v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
             a = str(soup.select(v))
             try :
@@ -562,9 +554,9 @@ class MainWindow(QMainWindow, ui_main):
                 else :
                     check_my_time = int(my_time.replace(":",""))
                 if check_my_time > check_need_time :
-                    check = "PASS"
+                    check = "O"
                 else :
-                    check = "FAIL"
+                    check = "X"
                 log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
                 class_detail_select.append([class_name, title, need_time, my_time, check])
             except :
@@ -573,33 +565,33 @@ class MainWindow(QMainWindow, ui_main):
         self.select_class = SelectClass()
         self.select_class.show()
     
-    def table_ItemDoubleClicked(self) :
-        row = self.tableWidget.currentRow()
-        column = self.tableWidget.currentColumn()
-        msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
-        need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
-        my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
-        log("DoubleClick > Class Detail > " + str([msgbox_title, need_time, my_time]))
-        if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
-            reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                log("DoubleClick > Class Detail > Question > Y")
-                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')     
-                webbrowser.open(url)
-                log("DoubleClick > Class Detail > Open > " + str(url))
-            else:
-                log("DoubleClick > Class Detail > Question > N")
-                return
-        else :
-            reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                log("DoubleClick > Class Detail > Question > Y")
-                url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
-                webbrowser.open(url)
-                log("DoubleClick > Class Detail > Open > " + str(url))
-            else:
-                log("DoubleClick > Class Detail > Question > N")
-                return
+    # def table_ItemDoubleClicked(self) :
+    #     row = self.tableWidget.currentRow()
+    #     column = self.tableWidget.currentColumn()
+    #     msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
+    #     need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
+    #     my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
+    #     log("DoubleClick > Class Detail > " + str([msgbox_title, need_time, my_time]))
+    #     if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
+    #         reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+    #         if reply == QMessageBox.Yes:
+    #             log("DoubleClick > Class Detail > Question > Y")
+    #             url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')     
+    #             webbrowser.open(url)
+    #             log("DoubleClick > Class Detail > Open > " + str(url))
+    #         else:
+    #             log("DoubleClick > Class Detail > Question > N")
+    #             return
+    #     else :
+    #         reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+    #         if reply == QMessageBox.Yes:
+    #             log("DoubleClick > Class Detail > Question > Y")
+    #             url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
+    #             webbrowser.open(url)
+    #             log("DoubleClick > Class Detail > Open > " + str(url))
+    #         else:
+    #             log("DoubleClick > Class Detail > Question > N")
+    #             return
     
     # Exit Function (Close Program)
     def exit(self) :
@@ -643,7 +635,7 @@ class MessageWindow(QMainWindow, ui_message):
             notice_url_value.append(a['href'])
         notice_url_value.pop()
 
-        for i in range(15): # Get Notice Detail
+        for i in range(7): # Get Notice Detail
             try :
                 name = soup.find_all(class_="media-heading")[i].get_text()
             except :
@@ -1008,7 +1000,7 @@ class SelectClass(QMainWindow, ui_select_class):
             for j in range(5):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
-                if str(class_detail_select[i][j]) == "미수강" or str(class_detail_select[i][j]) == "FAIL":
+                if str(class_detail_select[i][j]) == "미수강" or str(class_detail_select[i][j]) == "X":
                     item.setForeground(QBrush(Qt.red))
                     item.setBackground(QBrush(Qt.yellow))
                     item.setText(_translate("MainWindow", str(class_detail_select[i][j])))
@@ -1017,6 +1009,8 @@ class SelectClass(QMainWindow, ui_select_class):
         self.tableWidget.setSortingEnabled(__sortingEnabled)
         self.tableWidget.setSortingEnabled(True)
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+        delegate = AlignDelegate(self.tableWidget)
+        self.tableWidget.setItemDelegate(delegate)
     
     # Exit Function (Close Grade Window)
     def exit(self) :

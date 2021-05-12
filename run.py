@@ -142,7 +142,6 @@ class LoginWindow(QMainWindow, ui):
 
     def listener_login_pw(self) :
         self.login()
-
     # Login Function
     def login(self) :
         if self.login_id.text() == "" : # school id is blank
@@ -238,7 +237,6 @@ class LoginWindow(QMainWindow, ui):
                 # Get class id
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
-
                 # Class Detail (Run time, etc)
                 log("*** Get Class Detail ***")
                 for i in range(len(class_id)) :
@@ -280,23 +278,26 @@ class LoginWindow(QMainWindow, ui):
                             j += 1
 
                 # Get Link for Watch Cyber class
-                log("*** Get Watch Video Link ***")
-                video = []
-                for i in range(len(class_id)) :
-                    video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
-                    driver.get(video_url)
-                    log("Webdriver > Access Url > " + str(video_url))
-                    html = driver.page_source
-                    soup = BeautifulSoup(html, 'html.parser')
-                    for j in range(100) :
-                        html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
-                        url_soup = BeautifulSoup(html_1)
-                        for a in url_soup.find_all('a', href=True):
-                            log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
-                            video.append([class_id[i], a['href']])
+                # log("*** Get Watch Video Link ***")
+                # video = []
                 
-                for i in range(len(class_detail)) :
-                    class_detail[i].append(video[i])
+                # for i in range(len(class_id)) :
+                #     count -= i
+                #     print(count)
+                #     video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
+                #     driver.get(video_url)
+                #     log("Webdriver > Access Url > " + str(video_url))
+                #     html = driver.page_source
+                #     soup = BeautifulSoup(html, 'html.parser')
+                #     for j in range(100) :
+                #         html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
+                #         url_soup = BeautifulSoup(html_1)
+                #         for a in url_soup.find_all('a', href=True):
+                #             log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
+                #             video.append([class_id[i], a['href']])
+                
+                # for i in range(len(class_detail)) :
+                #     class_detail[i].append(video[i])
 
                 # Call Main Window
                 self.management = MainWindow()

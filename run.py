@@ -533,6 +533,11 @@ class MainWindow(QMainWindow, ui_main):
         log("Webdriver > Access Url > " + str(class_process_url))
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
+        time_url = "http://cyber.jj.ac.kr/course/view.php?id=" + class_number
+        driver.get(time_url)
+        html_time = driver.page_source
+        soup_time = BeautifulSoup(html_time, 'html.parser')
+        deadline = soup_time.find_all(class_="text-ubstrap")
         for j in range(1,100) :
             v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
             a = str(soup.select(v))
@@ -558,8 +563,9 @@ class MainWindow(QMainWindow, ui_main):
                     check = "O"
                 else :
                     check = "X"
-                log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
-                class_detail_select.append([class_name, title, need_time, my_time, check])
+                deadline_txt = str(deadline[j-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
+                log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
+                class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
             except :
                 log("Webdriver > Parse > Class Detail > Error (No Videos)")
                 j += 1
@@ -957,20 +963,20 @@ class SelectClass(QMainWindow, ui_select_class):
 
         # QtableWidget - Select Class Table
         _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setColumnCount(6)
         self.tableWidget.setRowCount(len(class_detail_select))
 
         for i in range(len(class_detail_select)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(5):
+        for i in range(6):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
         for i in range(len(class_detail_select)):
-            for j in range(5):
+            for j in range(6):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
@@ -983,22 +989,26 @@ class SelectClass(QMainWindow, ui_select_class):
         item = self.tableWidget.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "강의 제목"))
         item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "인정 시간"))
+        item.setText(_translate("MainWindow", "요구"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "들은 시간"))
+        item.setText(_translate("MainWindow", "학습"))
         item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "마감일"))
+        item = self.tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "통과"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
-        self.tableWidget.setColumnWidth(0, 150)
-        self.tableWidget.setColumnWidth(1, 360)
-        self.tableWidget.setColumnWidth(2, 65)
-        self.tableWidget.setColumnWidth(3, 65)
+        self.tableWidget.setColumnWidth(0, 130)
+        self.tableWidget.setColumnWidth(1, 180)
+        self.tableWidget.setColumnWidth(2, 55)
+        self.tableWidget.setColumnWidth(3, 55)
+        self.tableWidget.setColumnWidth(4, 280)
+        self.tableWidget.setColumnWidth(5, 50)
         self.tableWidget.verticalHeader().setVisible(False)
 
         for i in range(len(class_detail_select)):
-            for j in range(5):
+            for j in range(6):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 if str(class_detail_select[i][j]) == "미수강" or str(class_detail_select[i][j]) == "X":

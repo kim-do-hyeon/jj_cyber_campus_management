@@ -64,3 +64,4 @@
 * 202105062136 - Ver 1.44 Update (Hide Cmd & Bug fix)
 * 202105120000 - Ver 1.45 Update (Center Sort & Bug fix)
 * 202105130126 - Ver 1.6 Update (Add Deadline function & Bug fix)
+* 202105210055 - Ver 1.62 Update (Add user count)

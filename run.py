@@ -37,6 +37,19 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
+import smtplib
+from email.mime.text import MIMEText
+ 
+smtp = smtplib.SMTP('smtp.gmail.com', 587)
+smtp.starttls()
+smtp.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
+ 
+msg = MIMEText('사용자 확인')
+msg['Subject'] = '프로그램이 실행되었습니다.'
+msg['To'] = 'pental@kakao.com'
+smtp.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
+smtp.quit()
+
 # Check Chrome Version
 try :
     try :

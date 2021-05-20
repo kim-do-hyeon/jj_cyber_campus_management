@@ -37,6 +37,19 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
+import smtplib
+from email.mime.text import MIMEText
+ 
+smtp = smtplib.SMTP('smtp.gmail.com', 587)
+smtp.starttls()
+smtp.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
+ 
+msg = MIMEText('사용자 확인')
+msg['Subject'] = '프로그램이 실행되었습니다.'
+msg['To'] = 'pental@kakao.com'
+smtp.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
+smtp.quit()
+
 # Check Chrome Version
 try :
     try :
@@ -642,25 +655,28 @@ class MessageWindow(QMainWindow, ui_message):
             notice_url_value.append(a['href'])
         notice_url_value.pop()
 
-        for i in range(7): # Get Notice Detail
+        for i in range(len(notice_url_value)): # Get Notice Detail
             try :
-                name = soup.find_all(class_="media-heading")[i].get_text()
+                try :
+                    name = soup.find_all(class_="media-heading")[i].get_text()
+                except :
+                    name = "Error"
+                try :
+                    timeago = (soup.find_all(class_="timeago")[i].get_text())
+                except :
+                    timeago = "Error"
+                try :
+                    message = str(soup.find_all(class_="media-body")[i])
+                except :
+                    message = "Error"
+                try :
+                    message = message.partition("<p>")[-1].replace("</p></div>","")
+                except :
+                    message = "Error"
+                log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
+                notice_value.append([name, timeago, message, notice_url_value[i]])
             except :
-                name = "error"
-            try :
-                timeago = (soup.find_all(class_="timeago")[i].get_text())
-            except :
-                timeago = "error"
-            try :
-                message = str(soup.find_all(class_="media-body")[i])
-            except :
-                message = "error"
-            try :
-                message = message.partition("<p>")[-1].replace("</p></div>","")
-            except :
-                message = "error"
-            log("Webdriver > Parse > Notice > " + str([name, timeago, message, notice_url_value[i]]))
-            notice_value.append([name, timeago, message, notice_url_value[i]])
+                notice_value.append(["Error", "Error", 'Error', "Error"])
 
         for i in range(len(notice_value)) :
             self.notice_listWidget.addItem(notice_value[i][0])

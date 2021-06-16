@@ -37,19 +37,6 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
-import smtplib
-from email.mime.text import MIMEText
- 
-smtp = smtplib.SMTP('smtp.gmail.com', 587)
-smtp.starttls()
-smtp.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
- 
-msg = MIMEText('사용자 확인')
-msg['Subject'] = '프로그램이 실행되었습니다.'
-msg['To'] = 'pental@kakao.com'
-smtp.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
-smtp.quit()
-
 # Check Chrome Version
 try :
     try :
@@ -95,7 +82,19 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
-            if chrome_version == '90' :
+            if chrome_version == '92' :
+                chrome_version_92 = 'https://chromedriver.storage.googleapis.com/92.0.4515.43/chromedriver_win32.zip'
+                download(chrome_version_92, "chromedriver.zip")
+                log("Download Chromedriver Version 92")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
+            if chrome_version == '91' :
+                chrome_version_91 = 'https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_win32.zip'
+                download(chrome_version_91, "chromedriver.zip")
+                log("Download Chromedriver Version 91")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
+            elif chrome_version == '90' :
                 chrome_version_90 = 'https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_win32.zip'
                 download(chrome_version_90, "chromedriver.zip")
                 log("Download Chromedriver Version 90")

@@ -181,7 +181,7 @@ class LoginWindow(QMainWindow, ui):
                 return
             
             login_url = "https://cyber.jj.ac.kr/login.php"
-            class_url = "http://cyber.jj.ac.kr/local/ubion/user/"
+            class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
 
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
@@ -491,7 +491,7 @@ class MainWindow(QMainWindow, ui_main):
     def grade(self):
         log("*** Get Grade ***")
         QMessageBox.information(self, "성적 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
-        grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php"
+        grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php?year=2021&semester=10"
         driver.get(grade_url) # Open Grade Page
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
@@ -524,8 +524,11 @@ class MainWindow(QMainWindow, ui_main):
 
     # Call New Message Window
     def message(self):
-        self.new_message = MessageWindow()
-        self.new_message.show()
+        try :
+            self.new_message = MessageWindow()
+            self.new_message.show()
+        except :
+            QMessageBox.warning(self, '오류', '메시지를 불러오는데 오류가 발생하였습니다.', QMessageBox.Ok, QMessageBox.Ok)
 
     # Call Error Window
     def error(self) :

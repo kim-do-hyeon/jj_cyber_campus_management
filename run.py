@@ -180,8 +180,17 @@ class LoginWindow(QMainWindow, ui):
                 log("Webdriver > Does not exist chromedriver.exe")
                 return
             
+
+            reply = QMessageBox.question(self, '계절학기', '계절학기 수업으로 전환하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes :
+                class_url = "http://cyber.jj.ac.kr/local/ubion/user"
+            else :
+                class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
+
+
             login_url = "https://cyber.jj.ac.kr/login.php"
-            class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
+            # class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
+
 
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
@@ -226,7 +235,7 @@ class LoginWindow(QMainWindow, ui):
                 log("Webdriver > Parse > Class > " + str(class_all[i]))
 
             if class_all == [] : # If class is blank, Login Fail
-                QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
+                QMessageBox.warning(self, '로그인 실패', '계절학기 수업이 없거나, 학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Fail ***")
             else : # If class is full, Login Success
                 # Auto Login Function Activation

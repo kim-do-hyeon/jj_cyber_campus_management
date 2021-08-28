@@ -173,6 +173,7 @@ class LoginWindow(QMainWindow, ui):
             global driver
             try : 
                 driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
+                # driver = webdriver.Chrome('chromedriver.exe') # Run chromedriver.exe
                 log("Webdriver > Try to run Chrome")
                 QMessageBox.information(self, 'Notice', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
             except :
@@ -181,12 +182,12 @@ class LoginWindow(QMainWindow, ui):
                 return
             
 
-            reply = QMessageBox.question(self, '계절학기', '계절학기 수업으로 전환하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply == QMessageBox.Yes :
-                class_url = "http://cyber.jj.ac.kr/local/ubion/user"
-            else :
-                class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
-
+            # reply = QMessageBox.question(self, '계절학기', '계절학기 수업으로 전환하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            # if reply == QMessageBox.Yes :
+            #     class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php"
+            # else :
+            #     class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
+            class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php"
 
             login_url = "https://cyber.jj.ac.kr/login.php"
             # class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
@@ -200,16 +201,16 @@ class LoginWindow(QMainWindow, ui):
             log("Webdriver > Access Url > https://cyber.jj.ac.kr/login.php")
             driver.find_element_by_name('username').send_keys(student_id) # Send ID
             driver.find_element_by_name('password').send_keys(student_pw) # Send Password
-            driver.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/div/div/div[1]/div[1]/div[1]/form/div[2]/input').click() # Button Click
+            driver.find_element_by_xpath('//*[@id="region-main"]/div/form/div[2]/input').click() # Button Click
             log("Webdriver > Try to Login")
 
             # user info Page
             driver.get(class_url) # Open User Info Page
-            log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubion/user/")
+            # log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubion/user/")
 
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-
+            # print(soup)
             # Get Class Course Name
             log("*** Get Class Course Name ***")
             class_url_html = str(soup.find_all(class_="coursefullname"))
@@ -224,7 +225,8 @@ class LoginWindow(QMainWindow, ui):
 
             for a in class_url_soup.find_all('a', href=True):
                 class_url.append(a['href'])
-            
+            print(class_name)
+            print(class_url)
             global class_all
             class_all = []
 
@@ -258,45 +260,83 @@ class LoginWindow(QMainWindow, ui):
                 # Get class id
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
+                print(class_id)
                 # Class Detail (Run time, etc)
                 log("*** Get Class Detail ***")
                 for i in range(len(class_id)) :
                     class_name = class_all[i][0]
-                    class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[i]
+                    class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_id[i]
                     driver.get(class_process_url)
                     log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
                     for j in range(1, 100) :
-                        v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
-                        a = str(soup.select(v))
                         try :
-                            regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
-                            title = regex.findall(a)[0]
+                            # Title
+                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-left"
+                            # print(v)
+                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left"><img alt="" src="https://cyber.jj.ac.kr/theme/image.php/coursemosv2/vod/1630093208/icon"/>'), re.escape('</td>')))
+                            title = regex.findall(str(soup.select(v)))[0]
+                            print(title)
 
-                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
-                            need_time = regex.findall(a)[0]
+                            # Need Time
+                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-center.hidden-xs.hidden-sm"
+                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td>')))
+                            need_time = regex.findall(str(soup.select(v)))[0]
+                            print(need_time)
 
+                            # My Time
+                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"
                             try :
-                                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
-                                my_time = regex.findall(a)[0]
+                                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('</td>')))
+                                my_time = regex.findall(str(soup.select(v)))[0]
+                                print(my_time)
+                                if my_time == [] or my_time == '\xa0' :
+                                    my_time = "미수강"
+
                             except :
                                 my_time = "미수강"
-                            
-                            check_need_time = int(need_time.replace(":",""))
                             if my_time == "미수강" :
-                                check_my_time = 0
-                            else :
-                                check_my_time = int(my_time.replace(":",""))
-                            if check_my_time > check_need_time :
-                                check = "O"
-                            else :
                                 check = "X"
-                            log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
+                            elif my_time > need_time :
+                                check = "O"
+                            
                             class_detail.append([class_name, title, need_time, my_time, check])
+                            
                         except :
                             log("Webdriver > Parse > Class Detail > Error (No Videos)")
                             j += 1
+                        # try :
+                        #     # regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
+                        #     # title = regex.findall(a)[0]
+                        #     title = soup.select("#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(1) > td.text-left")
+                        #     print(title.getText())
+
+                        #     # regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
+                        #     # need_time = regex.findall(a)[0]
+                        #     need_time = soup.select("#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(1) > td.text-center.hidden-xs.hidden-sm")
+                        #     print(need_time)
+
+                        #     try :
+                        #         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
+                        #         my_time = regex.findall(a)[0]
+                        #     except :
+                        #         my_time = "미수강"
+                            
+                        #     check_need_time = int(need_time.replace(":",""))
+                        #     if my_time == "미수강" :
+                        #         check_my_time = 0
+                        #     else :
+                        #         check_my_time = int(my_time.replace(":",""))
+                        #     if check_my_time > check_need_time :
+                        #         check = "O"
+                        #     else :
+                        #         check = "X"
+                        #     log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
+                        #     class_detail.append([class_name, title, need_time, my_time, check])
+                        # except :
+                        #     log("Webdriver > Parse > Class Detail > Error (No Videos)")
+                        #     j += 1
 
                 # Get Link for Watch Cyber class
                 # log("*** Get Watch Video Link ***")
@@ -360,7 +400,7 @@ class MainWindow(QMainWindow, ui_main):
         self.logo_label.setPixmap(QPixmap('src\logo.jpg'))
 
         #Get User Infomormation
-        get_user_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[0]
+        get_user_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_id[0]
         driver.get(get_user_url)
         log("Webdriver > Access Url > " + str(get_user_url))
         
@@ -430,8 +470,8 @@ class MainWindow(QMainWindow, ui_main):
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
-        self.tableWidget.setColumnWidth(0, 150)
-        self.tableWidget.setColumnWidth(1, 360)
+        self.tableWidget.setColumnWidth(0, 200)
+        self.tableWidget.setColumnWidth(1, 340)
         self.tableWidget.setColumnWidth(2, 65)
         self.tableWidget.setColumnWidth(3, 65)
         self.tableWidget.verticalHeader().setVisible(False)
@@ -552,44 +592,51 @@ class MainWindow(QMainWindow, ui_main):
         class_detail_select = []
         
         class_name = class_all[row][0]
-        class_process_url = "http://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_number
+        class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_number
         driver.get(class_process_url)
         log("Webdriver > Access Url > " + str(class_process_url))
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        time_url = "http://cyber.jj.ac.kr/course/view.php?id=" + class_number
+        time_url = "https://cyber.jj.ac.kr/course/view.php?id=" + class_number
         driver.get(time_url)
         html_time = driver.page_source
         soup_time = BeautifulSoup(html_time, 'html.parser')
         deadline = soup_time.find_all(class_="text-ubstrap")
-        for j in range(1,100) :
-            v = '#ubcompletion-progress-wrapper > div:nth-child(3) > table > tbody > tr:nth-child(' + str(j) + ')'
-            a = str(soup.select(v))
+        
+        for j in range(1, 100) :
             try :
-                regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
-                title = regex.findall(a)[0]
+                # Title
+                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-left"
+                # print(v)
+                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left"><img alt="" src="https://cyber.jj.ac.kr/theme/image.php/coursemosv2/vod/1630093208/icon"/>'), re.escape('</td>')))
+                title = regex.findall(str(soup.select(v)))[0]
+                print(title)
 
-                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
-                need_time = regex.findall(a)[0]
+                # Need Time
+                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-center.hidden-xs.hidden-sm"
+                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td>')))
+                need_time = regex.findall(str(soup.select(v)))[0]
+                print(need_time)
 
+                # My Time
+                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"
                 try :
-                    regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
-                    my_time = regex.findall(a)[0]
+                    regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('</td>')))
+                    my_time = regex.findall(str(soup.select(v)))[0]
+                    print(my_time)
+                    if my_time == [] or my_time == '\xa0' :
+                        my_time = "미수강"
+
                 except :
                     my_time = "미수강"
-                
-                check_need_time = int(need_time.replace(":",""))
                 if my_time == "미수강" :
-                    check_my_time = 0
-                else :
-                    check_my_time = int(my_time.replace(":",""))
-                if check_my_time > check_need_time :
-                    check = "O"
-                else :
                     check = "X"
-                deadline_txt = str(deadline[j-1]).replace("<span class=\"text-ubstrap\">", "").replace("</span>", "")
-                log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
+                elif my_time > need_time :
+                    check = "O"
+                deadline_txt = str(deadline[j-1])[50:61]
+                # log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
                 class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
+                
             except :
                 log("Webdriver > Parse > Class Detail > Error (No Videos)")
                 j += 1

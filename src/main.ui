@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1150</width>
-    <height>520</height>
+    <width>1280</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1150</width>
-    <height>520</height>
+    <width>1280</width>
+    <height>530</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1150</width>
-    <height>520</height>
+    <width>1280</width>
+    <height>530</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -57,7 +57,7 @@
      <rect>
       <x>170</x>
       <y>30</y>
-      <width>781</width>
+      <width>921</width>
       <height>480</height>
      </rect>
     </property>
@@ -67,8 +67,8 @@
      <rect>
       <x>170</x>
       <y>10</y>
-      <width>670</width>
-      <height>12</height>
+      <width>971</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
@@ -200,7 +200,7 @@
    <widget class="QPushButton" name="assign_button">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>130</y>
       <width>171</width>
       <height>31</height>
@@ -213,7 +213,7 @@
    <widget class="QLabel" name="assign_label">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>110</y>
       <width>171</width>
       <height>16</height>
@@ -229,7 +229,7 @@
    <widget class="QPushButton" name="exit_button">
     <property name="geometry">
      <rect>
-      <x>1050</x>
+      <x>1190</x>
       <y>470</y>
       <width>81</width>
       <height>41</height>
@@ -242,7 +242,7 @@
    <widget class="QPushButton" name="error_send">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>470</y>
       <width>81</width>
       <height>41</height>
@@ -255,7 +255,7 @@
    <widget class="QPushButton" name="grade_button">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>200</y>
       <width>171</width>
       <height>31</height>
@@ -268,7 +268,7 @@
    <widget class="QLabel" name="grade_label">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>180</y>
       <width>171</width>
       <height>16</height>
@@ -284,7 +284,7 @@
    <widget class="QPushButton" name="message_button">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>60</y>
       <width>171</width>
       <height>31</height>
@@ -297,7 +297,7 @@
    <widget class="QLabel" name="new_message_label">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>1100</x>
       <y>30</y>
       <width>171</width>
       <height>16</height>
@@ -311,6 +311,7 @@
     </property>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <resources/>
  <connections/>

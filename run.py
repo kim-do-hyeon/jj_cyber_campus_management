@@ -16,6 +16,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 from requests import get
 from pathlib import Path
+from pprint import pprint
+import pandas as pd
+from datetime import datetime
 
 # File Download Function
 def download(url, file_name):
@@ -181,17 +184,8 @@ class LoginWindow(QMainWindow, ui):
                 log("Webdriver > Does not exist chromedriver.exe")
                 return
             
-
-            # reply = QMessageBox.question(self, '계절학기', '계절학기 수업으로 전환하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            # if reply == QMessageBox.Yes :
-            #     class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php"
-            # else :
-            #     class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
             class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php"
-
             login_url = "https://cyber.jj.ac.kr/login.php"
-            # class_url = "http://cyber.jj.ac.kr/local/ubion/user/?year=2021&semester=10"
-
 
             student_id = (self.login_id.text())
             student_pw = (self.login_pw.text())
@@ -206,11 +200,11 @@ class LoginWindow(QMainWindow, ui):
 
             # user info Page
             driver.get(class_url) # Open User Info Page
-            # log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubion/user/")
+            log("Webdriver > Access Url > https://cyber.jj.ac.kr/local/ubion/user/index.php")
 
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            # print(soup)
+
             # Get Class Course Name
             log("*** Get Class Course Name ***")
             class_url_html = str(soup.find_all(class_="coursefullname"))
@@ -225,8 +219,7 @@ class LoginWindow(QMainWindow, ui):
 
             for a in class_url_soup.find_all('a', href=True):
                 class_url.append(a['href'])
-            print(class_name)
-            print(class_url)
+
             global class_all
             class_all = []
 
@@ -237,7 +230,7 @@ class LoginWindow(QMainWindow, ui):
                 log("Webdriver > Parse > Class > " + str(class_all[i]))
 
             if class_all == [] : # If class is blank, Login Fail
-                QMessageBox.warning(self, '로그인 실패', '계절학기 수업이 없거나, 학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
+                QMessageBox.warning(self, '로그인 실패', '학번 또는 비밀번호를 확인해 주세요.', QMessageBox.Ok, QMessageBox.Ok)
                 log("*** Login Fail ***")
             else : # If class is full, Login Success
                 # Auto Login Function Activation
@@ -260,105 +253,54 @@ class LoginWindow(QMainWindow, ui):
                 # Get class id
                 for i in range(len(class_all)) :
                     class_id.append(class_all[i][1].split("?")[1][3:])
-                print(class_id)
+
                 # Class Detail (Run time, etc)
                 log("*** Get Class Detail ***")
                 for i in range(len(class_id)) :
                     class_name = class_all[i][0]
-                    class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_id[i]
+                    class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_id[i]
                     driver.get(class_process_url)
                     log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
                     soup = BeautifulSoup(html, 'html.parser')
-                    for j in range(1, 100) :
-                        try :
-                            # Title
-                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-left"
-                            # print(v)
-                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left"><img alt="" src="https://cyber.jj.ac.kr/theme/image.php/coursemosv2/vod/1630093208/icon"/>'), re.escape('</td>')))
-                            title = regex.findall(str(soup.select(v)))[0]
-                            print(title)
 
-                            # Need Time
-                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-center.hidden-xs.hidden-sm"
-                            regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td>')))
-                            need_time = regex.findall(str(soup.select(v)))[0]
-                            print(need_time)
-
-                            # My Time
-                            v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"
+                    time_url = "https://cyber.jj.ac.kr/course/view.php?id=" + class_id[i]
+                    driver.get(time_url)
+                    html_time = driver.page_source
+                    soup_time = BeautifulSoup(html_time, 'html.parser')
+                    deadline = soup_time.find_all(class_="text-ubstrap")
+                    try :
+                        data = soup.find("table",{"class":"table table-bordered user_progress table-coursemos"})
+                        table_html = str(data)
+                        table_df_list = pd.read_html(table_html)
+                        table_df_list[0] = table_df_list[0].dropna(how = "any")
+                        for j in range(100):
                             try :
-                                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('</td>')))
-                                my_time = regex.findall(str(soup.select(v)))[0]
-                                print(my_time)
-                                if my_time == [] or my_time == '\xa0' :
+                                title = (table_df_list[0]['강의 자료'][j])
+                                need_time = (table_df_list[0]['콘텐츠 길이'][j])
+                                my_time = (table_df_list[0]['최대 학습위치'][j][:-8])
+                                if my_time == "" :
                                     my_time = "미수강"
-
-                            except :
-                                my_time = "미수강"
-                            if my_time == "미수강" :
-                                check = "X"
-                            elif my_time > need_time :
-                                check = "O"
-                            
-                            class_detail.append([class_name, title, need_time, my_time, check])
-                            
-                        except :
-                            log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                            j += 1
-                        # try :
-                        #     # regex = re.compile('{}(.*){}'.format(re.escape('icon"/>'), re.escape('</td><td class="text-center hidden-xs hidden-sm">')))
-                        #     # title = regex.findall(a)[0]
-                        #     title = soup.select("#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(1) > td.text-left")
-                        #     print(title.getText())
-
-                        #     # regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td><td class="text-center">')))
-                        #     # need_time = regex.findall(a)[0]
-                        #     need_time = soup.select("#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(1) > td.text-center.hidden-xs.hidden-sm")
-                        #     print(need_time)
-
-                        #     try :
-                        #         regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('<br/>')))
-                        #         my_time = regex.findall(a)[0]
-                        #     except :
-                        #         my_time = "미수강"
-                            
-                        #     check_need_time = int(need_time.replace(":",""))
-                        #     if my_time == "미수강" :
-                        #         check_my_time = 0
-                        #     else :
-                        #         check_my_time = int(my_time.replace(":",""))
-                        #     if check_my_time > check_need_time :
-                        #         check = "O"
-                        #     else :
-                        #         check = "X"
-                        #     log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, check, check_my_time, check_need_time]))
-                        #     class_detail.append([class_name, title, need_time, my_time, check])
-                        # except :
-                        #     log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                        #     j += 1
-
-                # Get Link for Watch Cyber class
-                # log("*** Get Watch Video Link ***")
-                # video = []
-                
-                # for i in range(len(class_id)) :
-                #     count -= i
-                #     print(count)
-                #     video_url = "http://cyber.jj.ac.kr/mod/vod/index.php?id=" + class_id[i]
-                #     driver.get(video_url)
-                #     log("Webdriver > Access Url > " + str(video_url))
-                #     html = driver.page_source
-                #     soup = BeautifulSoup(html, 'html.parser')
-                #     for j in range(100) :
-                #         html_1 = str(soup.select("#region-main > div > table > tbody > tr:nth-child(" + str(j) + ") > td.cell.c1 > a"))
-                #         url_soup = BeautifulSoup(html_1)
-                #         for a in url_soup.find_all('a', href=True):
-                #             log("Webdriver > Parse > Video Link > " + str([class_id[i], a['href']]))
-                #             video.append([class_id[i], a['href']])
-                
-                # for i in range(len(class_detail)) :
-                #     class_detail[i].append(video[i])
+                                check = (table_df_list[0]['진도율'][j])
+                                if check == "-" :
+                                    check = "X"
+                                try : 
+                                    deadline_txt = str(deadline[j])[50:60]
+                                except Exception as e:
+                                    deadline_txt = "Error"
+                                try :
+                                    now  = datetime.now()
+                                    compare_time = datetime.strptime(deadline_txt, "%Y-%m-%d")
+                                    date_diff = compare_time - now
+                                    date_diff = date_diff.days
+                                except :
+                                    date_diff = "Error"
+                                class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
+                            except Exception as e:
+                                j += 1
+                    except :
+                        pass
+                    
 
                 # Call Main Window
                 self.management = MainWindow()
@@ -383,6 +325,11 @@ class MainWindow(QMainWindow, ui_main):
         log("*** Open MainWindow ***")
         super().__init__()
         self.setupUi(self)
+
+        # Show Date
+        self.date = QDate.currentDate()
+        self.statusBar.showMessage(str("오늘 날짜 : " + self.date.toString(Qt.DefaultLocaleLongDate)))
+        
         self.setWindowIcon(QIcon('src\icon.ico'))
 
         # Item Double Clicked Function
@@ -398,6 +345,7 @@ class MainWindow(QMainWindow, ui_main):
 
         # Logo
         self.logo_label.setPixmap(QPixmap('src\logo.jpg'))
+
 
         #Get User Infomormation
         get_user_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_id[0]
@@ -436,20 +384,20 @@ class MainWindow(QMainWindow, ui_main):
 
         # QtableWidget - Class Table
         _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(len(class_detail))
 
         for i in range(len(class_detail)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(5):
+        for i in range(7):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
         for i in range(len(class_detail)):
-            for j in range(5):
+            for j in range(7):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
@@ -466,18 +414,24 @@ class MainWindow(QMainWindow, ui_main):
         item = self.tableWidget.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "들은 시간"))
         item = self.tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "마감일"))
+        item = self.tableWidget.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "잔여"))
+        item = self.tableWidget.horizontalHeaderItem(6)
         item.setText(_translate("MainWindow", "통과"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
         self.tableWidget.setColumnWidth(0, 200)
-        self.tableWidget.setColumnWidth(1, 340)
+        self.tableWidget.setColumnWidth(1, 300)
         self.tableWidget.setColumnWidth(2, 65)
         self.tableWidget.setColumnWidth(3, 65)
+        self.tableWidget.setColumnWidth(4, 100)
+        self.tableWidget.setColumnWidth(5, 65)
         self.tableWidget.verticalHeader().setVisible(False)
 
         for i in range(len(class_detail)):
-            for j in range(5):
+            for j in range(7):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "X":
@@ -592,7 +546,7 @@ class MainWindow(QMainWindow, ui_main):
         class_detail_select = []
         
         class_name = class_all[row][0]
-        class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress_a.php?id=" + class_number
+        class_process_url = "https://cyber.jj.ac.kr/report/ubcompletion/user_progress.php?id=" + class_number
         driver.get(class_process_url)
         log("Webdriver > Access Url > " + str(class_process_url))
         html = driver.page_source
@@ -603,43 +557,29 @@ class MainWindow(QMainWindow, ui_main):
         soup_time = BeautifulSoup(html_time, 'html.parser')
         deadline = soup_time.find_all(class_="text-ubstrap")
         
-        for j in range(1, 100) :
-            try :
-                # Title
-                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-left"
-                # print(v)
-                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left"><img alt="" src="https://cyber.jj.ac.kr/theme/image.php/coursemosv2/vod/1630093208/icon"/>'), re.escape('</td>')))
-                title = regex.findall(str(soup.select(v)))[0]
-                print(title)
-
-                # Need Time
-                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td.text-center.hidden-xs.hidden-sm"
-                regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center hidden-xs hidden-sm">'), re.escape('</td>')))
-                need_time = regex.findall(str(soup.select(v)))[0]
-                print(need_time)
-
-                # My Time
-                v = "#ubcompletion-progress-wrapper > div:nth-child(2) > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"
+        try :
+            data = soup.find("table",{"class":"table table-bordered user_progress table-coursemos"})
+            table_html = str(data)
+            table_df_list = pd.read_html(table_html)
+            table_df_list[0] = table_df_list[0].dropna(how = "any")
+            for j in range(100):
                 try :
-                    regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-center">'), re.escape('</td>')))
-                    my_time = regex.findall(str(soup.select(v)))[0]
-                    print(my_time)
-                    if my_time == [] or my_time == '\xa0' :
+                    title = (table_df_list[0]['강의 자료'][j])
+                    need_time = (table_df_list[0]['콘텐츠 길이'][j])
+                    my_time = (table_df_list[0]['최대 학습위치'][j][:-8])
+                    if my_time == "" :
                         my_time = "미수강"
-
-                except :
-                    my_time = "미수강"
-                if my_time == "미수강" :
-                    check = "X"
-                elif my_time > need_time :
-                    check = "O"
-                deadline_txt = str(deadline[j-1])[50:61]
-                # log("Webdriver > Parse > Class Detail > " + str([class_name, title, need_time, my_time, deadline_txt, check, check_my_time, check_need_time]))
-                class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
-                
-            except :
-                log("Webdriver > Parse > Class Detail > Error (No Videos)")
-                j += 1
+                    check = (table_df_list[0]['진도율'][j])
+                    if check == "-" :
+                        check = "X"
+                    deadline_txt = str(deadline[j-1])[50:61]
+                    
+                    class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
+                except Exception as e:
+                    # print(e)
+                    pass
+        except :
+            pass
         self.select_class = SelectClass()
         self.select_class.show()
     

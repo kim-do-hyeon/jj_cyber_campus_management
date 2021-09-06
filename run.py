@@ -3,10 +3,7 @@ import os
 import re
 import sys
 import sqlite3
-import webbrowser
 import zipfile
-import requests
-import urllib.request
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -16,7 +13,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 from requests import get
 from pathlib import Path
-from pprint import pprint
 import pandas as pd
 from datetime import datetime
 
@@ -85,6 +81,12 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
+            if chrome_version == '93' :
+                chrome_version_93 = 'http://chromedriver.storage.googleapis.com/93.0.4577.15/chromedriver_win32.zip'
+                download(chrome_version_93, "chromedriver.zip")
+                log("Download Chromedriver Version 93")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
             if chrome_version == '92' :
                 chrome_version_92 = 'https://chromedriver.storage.googleapis.com/92.0.4515.43/chromedriver_win32.zip'
                 download(chrome_version_92, "chromedriver.zip")
@@ -97,28 +99,10 @@ class LoginWindow(QMainWindow, ui):
                 log("Download Chromedriver Version 91")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
                 log("Unziped Chromedriver.zip")
-            elif chrome_version == '90' :
+            if chrome_version == '90' :
                 chrome_version_90 = 'https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_win32.zip'
                 download(chrome_version_90, "chromedriver.zip")
                 log("Download Chromedriver Version 90")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            elif chrome_version == '89' :
-                chrome_version_89 = 'https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_win32.zip'
-                download(chrome_version_89, "chromedriver.zip")
-                log("Download Chromedriver Version 89")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            elif chrome_version == '88' :
-                chrome_version_88 = 'https://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_win32.zip'
-                download(chrome_version_88, "chromedriver.zip")
-                log("Download Chromedriver Version 988")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            elif chrome_version == '87' :
-                chrome_version_87 = 'https://chromedriver.storage.googleapis.com/87.0.4280.88/chromedriver_win32.zip'
-                download(chrome_version_87, "chromedriver.zip")
-                log("Download Chromedriver Version 87")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
                 log("Unziped Chromedriver.zip")
         elif check == 1 :
@@ -292,7 +276,9 @@ class LoginWindow(QMainWindow, ui):
                                     now  = datetime.now()
                                     compare_time = datetime.strptime(deadline_txt, "%Y-%m-%d")
                                     date_diff = compare_time - now
-                                    date_diff = date_diff.days
+                                    date_diff = date_diff.days + 1
+                                    if date_diff < 0 :
+                                        date_diff = "Timeout"
                                 except :
                                     date_diff = "Error"
                                 class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
@@ -300,7 +286,6 @@ class LoginWindow(QMainWindow, ui):
                                 j += 1
                     except :
                         pass
-                    
 
                 # Call Main Window
                 self.management = MainWindow()
@@ -312,8 +297,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignCenter
-
-
 
 # Call ui(main.ui) File
 ui_main_path = "src/main.ui"
@@ -454,12 +437,11 @@ class MainWindow(QMainWindow, ui_main):
         assign = []
         for i in range(len(class_id)) :
             class_name = class_all[i][0]
-            class_assign_url = "http://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
+            class_assign_url = "https://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
             driver.get(class_assign_url) # Open Class Assign Page
             log("Webdriver > Access Url > " + str(class_assign_url))
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            temp = (soup.select("#region-main > div > table > tbody > tr:nth-child(1)"))
             temp1 = []
             temp2 = []
             for i in soup.select("#region-main > div > table > tbody > tr:nth-child(1)") :
@@ -582,35 +564,6 @@ class MainWindow(QMainWindow, ui_main):
             pass
         self.select_class = SelectClass()
         self.select_class.show()
-    
-    # def table_ItemDoubleClicked(self) :
-    #     row = self.tableWidget.currentRow()
-    #     column = self.tableWidget.currentColumn()
-    #     msgbox_title = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
-    #     need_time = self.tableWidget.item(self.tableWidget.currentRow(), 2).text()
-    #     my_time = self.tableWidget.item(self.tableWidget.currentRow(), 3).text()
-    #     log("DoubleClick > Class Detail > " + str([msgbox_title, need_time, my_time]))
-    #     if self.tableWidget.item(row, 3).text() == "미수강" or need_time > my_time:
-    #         reply = QMessageBox.question(self, msgbox_title, '미수강된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-    #         if reply == QMessageBox.Yes:
-    #             log("DoubleClick > Class Detail > Question > Y")
-    #             url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')     
-    #             webbrowser.open(url)
-    #             log("DoubleClick > Class Detail > Open > " + str(url))
-    #         else:
-    #             log("DoubleClick > Class Detail > Question > N")
-    #             return
-    #     else :
-    #         reply = QMessageBox.question(self, msgbox_title, '수강완료된 강의입니다.\n강의 홈페이지로 이동하기를 원하십니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-    #         if reply == QMessageBox.Yes:
-    #             log("DoubleClick > Class Detail > Question > Y")
-    #             url = (class_detail[row][5][1]).replace("view.php?id=", 'http://cyber.jj.ac.kr/mod/vod/view.php?id=')
-    #             webbrowser.open(url)
-    #             log("DoubleClick > Class Detail > Open > " + str(url))
-    #         else:
-    #             log("DoubleClick > Class Detail > Question > N")
-    #             return
-    
     # Exit Function (Close Program)
     def exit(self) :
         log("*** Exit Program ***")
@@ -635,9 +588,9 @@ class MessageWindow(QMainWindow, ui_message):
         self.exit_button.clicked.connect(self.exit)
 
 
-        notice_url = "http://cyber.jj.ac.kr/local/ubnotification/"
+        notice_url = "https://cyber.jj.ac.kr/local/ubnotification/"
         driver.get(notice_url) # Open Notice Page
-        log("Webdriver > Access Url > http://cyber.jj.ac.kr/local/ubnotification/")
+        log("Webdriver > Access Url > https://cyber.jj.ac.kr/local/ubnotification/")
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -675,7 +628,8 @@ class MessageWindow(QMainWindow, ui_message):
                 notice_value.append([name, timeago, message, notice_url_value[i]])
             except :
                 notice_value.append(["Error", "Error", 'Error', "Error"])
-
+        notice_value.pop()
+        notice_value.pop()
         for i in range(len(notice_value)) :
             self.notice_listWidget.addItem(notice_value[i][0])
 

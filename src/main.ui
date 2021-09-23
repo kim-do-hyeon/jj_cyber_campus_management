@@ -262,7 +262,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>성적</string>
+     <string>화상강의</string>
     </property>
    </widget>
    <widget class="QLabel" name="grade_label">
@@ -275,7 +275,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>성적 확인</string>
+     <string>화상강의 확인</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

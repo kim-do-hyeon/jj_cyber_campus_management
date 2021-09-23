@@ -5,6 +5,7 @@ import sys
 import sqlite3
 import zipfile
 from bs4 import BeautifulSoup
+from numpy import nan
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
@@ -40,8 +41,10 @@ log("*** Start Program ***")
 try :
     try :
         chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+        print(os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0])
     except :
         chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
+        print(os.listdir('C:/Program Files/Google/Chrome/Application/')[0])
     log("Chrome browser is installed.")
     chrome_check = 1
 except :
@@ -81,6 +84,12 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
+            if chrome_version == '94' :
+                chrome_version_94 = 'https://chromedriver.storage.googleapis.com/94.0.4606.41/chromedriver_win32.zip'
+                download(chrome_version_94, "chromedriver.zip")
+                log("Download Chromedriver Version 94")
+                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+                log("Unziped Chromedriver.zip")
             if chrome_version == '93' :
                 chrome_version_93 = 'http://chromedriver.storage.googleapis.com/93.0.4577.15/chromedriver_win32.zip'
                 download(chrome_version_93, "chromedriver.zip")
@@ -472,37 +481,63 @@ class MainWindow(QMainWindow, ui_main):
         self.assignment = AssignWindow()
         self.assignment.show()
 
-    # Call Grade Function
+    # Call Video Chat Function
     def grade(self):
-        log("*** Get Grade ***")
-        QMessageBox.information(self, "성적 확인", "성적을 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
-        grade_url = "http://cyber.jj.ac.kr/local/ubion/user/grade.php?year=2021&semester=10"
-        driver.get(grade_url) # Open Grade Page
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        global grade_all
-        grade_all = []
-        try :
-            for j in range(1, 9) :
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(1)"):
-                    year = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(2)"):
-                    semester = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(3)"):
-                    classname = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(4)"):
-                    professor = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(5)"):
-                    grade = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(6)"):
-                    grade_percent = (i.text)
-                for i in soup.select("#region-main > div > div > div > table > tbody > tr:nth-child(" + str(j) + ") > td:nth-child(7)"):
-                    complete_grade = (i.text)
-                log("Webdriver > Parse > Grade > " + str([year, semester, classname, professor, grade, grade_percent, complete_grade]))
-                grade_all.append([year, semester, classname, professor, grade, grade_percent, complete_grade])
-        except :
-            QMessageBox.warning(self, '오류', '성적을 가져오는데 오류가 발생하였습니다.\n오류 제보를 통해서 log.txt 파일을 보내주세요', QMessageBox.Ok, QMessageBox.Ok)
-        
+        log("*** Get Video Chat ***")
+        QMessageBox.information(self, "화상강의 확인", "화상강의를 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
+        global webex_detail
+        webex_detail = []
+        for i in range(len(class_id)) :
+            class_name = class_all[i][0]
+            webexactivity = "https://cyber.jj.ac.kr/mod/webexactivity/index.php?id=" + class_id[i]
+            driver.get(webexactivity)
+            log("Webdriver > Access Url > " + str(webexactivity))
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            try :
+                data = soup.find("table",{"class":"generaltable"})
+                table_html = str(data)
+                table_df_list = pd.read_html(table_html)
+                for j in range(100):
+                    try :
+                        subject = (table_df_list[0]['주제'][j])
+                        title = (table_df_list[0]['제목'][j])
+                        start_time = (table_df_list[0]['시작 시간'][j])
+                        recordings = (table_df_list[0]['Recordings'][j])
+                        webex_detail.append([subject, title, start_time, recordings])
+                    except Exception as e:
+                        j += 1
+            except Exception as e:
+                pass
+            #     table_df_list[0] = table_df_list[0].dropna(how = "any")
+            #     for j in range(100):
+            #         try :
+            #             title = (table_df_list[0]['강의 자료'][j])
+            #             need_time = (table_df_list[0]['콘텐츠 길이'][j])
+            #             my_time = (table_df_list[0]['최대 학습위치'][j][:-8])
+            #             if my_time == "" :
+            #                 my_time = "미수강"
+            #             check = (table_df_list[0]['진도율'][j])
+            #             if check == "-" :
+            #                 check = "X"
+            #             try : 
+            #                 deadline_txt = str(deadline[j])[50:60]
+            #             except Exception as e:
+            #                 deadline_txt = "Error"
+            #             try :
+            #                 now  = datetime.now()
+            #                 compare_time = datetime.strptime(deadline_txt, "%Y-%m-%d")
+            #                 date_diff = compare_time - now
+            #                 date_diff = date_diff.days + 1
+            #                 if date_diff < 0 :
+            #                     date_diff = "Timeout"
+            #             except :
+            #                 date_diff = "Error"
+            #             class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
+            #         except Exception as e:
+            #             j += 1
+            # except :
+            #     pass
         # Call Grade Window
         self.grade = GradeWindow()
         self.grade.show()
@@ -639,16 +674,8 @@ class MessageWindow(QMainWindow, ui_message):
         log("DoubleClick > Notice > " + str([notice_value[self.notice_listWidget.currentRow()][0], notice_value[self.notice_listWidget.currentRow()][1], notice_value[self.notice_listWidget.currentRow()][2], notice_value[self.notice_listWidget.currentRow()][3]]))
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        try : 
-            title = soup.find_all(class_="subject")[0].get_text()
-            time = (soup.select("#region-main > div > div > div > div.well > div:nth-child(2) > div.date")[0].get_text())
-            time = time.replace("\n", "").replace(" ", "").replace("\t","")
-            time = (time[:14] + " " + time[14:])
-            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + " (" + time + ")" + "\n"  + str(soup.find_all(class_="text_to_html")[0].get_text())
-            message = message.replace(".", ".\n")
-        except :
-            title = self.notice_listWidget.currentItem().text()
-            message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
+        title = self.notice_listWidget.currentItem().text()
+        message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
 
     # Exit Function (Close Message Window)
@@ -747,50 +774,49 @@ class GradeWindow(QMainWindow, ui_grade):
 
         # QtableWidget - Grade Table
         _translate = QCoreApplication.translate
-        self.grade_tableWidget.setColumnCount(7)
-        self.grade_tableWidget.setRowCount(len(grade_all))
+        self.grade_tableWidget.setColumnCount(4)
+        self.grade_tableWidget.setRowCount(len(webex_detail))
         self.grade_tableWidget.verticalHeader().setVisible(False)
 
-        for i in range(len(grade_all)):
+        for i in range(len(webex_detail)):
             item = QTableWidgetItem()
             self.grade_tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(7):
+        for i in range(4):
             item = QTableWidgetItem()
             self.grade_tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
-        for i in range(len(grade_all)):
-            for j in range(7):
+        for i in range(len(webex_detail)):
+            for j in range(4):
                 self.grade_tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
-        for i in range(len(grade_all)) :
+        for i in range(len(webex_detail)) :
             item = self.grade_tableWidget.verticalHeaderItem(i)
             item.setText(_translate("MainWindow", str(i)))
 
         item = self.grade_tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "연도"))
+        item.setText(_translate("MainWindow", "주제"))
         item = self.grade_tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "학기"))
+        item.setText(_translate("MainWindow", "제목"))
         item = self.grade_tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "강좌명"))
+        item.setText(_translate("MainWindow", "시작 시간"))
         item = self.grade_tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "담당교수"))
-        item = self.grade_tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "성적"))
-        item = self.grade_tableWidget.horizontalHeaderItem(5)
-        item.setText(_translate("MainWindow", "백분환산점수"))
-        item = self.grade_tableWidget.horizontalHeaderItem(6)
-        item.setText(_translate("MainWindow", "최종성적"))
+        item.setText(_translate("MainWindow", "Recordings"))
         __sortingEnabled = self.grade_tableWidget.isSortingEnabled()
         self.grade_tableWidget.setSortingEnabled(False)
 
-        for i in range(len(grade_all)):
-            for j in range(7):
+        self.grade_tableWidget.setColumnWidth(0, 200)
+        self.grade_tableWidget.setColumnWidth(1, 280)
+        self.grade_tableWidget.setColumnWidth(2, 150)
+        self.grade_tableWidget.setColumnWidth(4, 55)
+ 
+        for i in range(len(webex_detail)):
+            for j in range(4):
                 item = self.grade_tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
-                item.setText(_translate("MainWindow", str(grade_all[i][j])))
+                item.setText(_translate("MainWindow", str(webex_detail[i][j])))
         self.grade_tableWidget.setSortingEnabled(__sortingEnabled)
     
     # Exit Function (Close Grade Window)

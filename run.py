@@ -41,10 +41,8 @@ log("*** Start Program ***")
 try :
     try :
         chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
-        print(os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0])
     except :
         chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
-        print(os.listdir('C:/Program Files/Google/Chrome/Application/')[0])
     log("Chrome browser is installed.")
     chrome_check = 1
 except :
@@ -449,33 +447,27 @@ class MainWindow(QMainWindow, ui_main):
             class_assign_url = "https://cyber.jj.ac.kr/mod/assign/index.php?id=" + class_id[i]
             driver.get(class_assign_url) # Open Class Assign Page
             log("Webdriver > Access Url > " + str(class_assign_url))
-            html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
-            temp1 = []
-            temp2 = []
-            for i in soup.select("#region-main > div > table > tbody > tr:nth-child(1)") :
-                string = i.text.split("\n")
-                string.pop()
-                del string[0]
-                temp1 = (string)
-            temp = (soup.select("#region-main > div > table > tbody > tr.lastrow"))
-            for i in soup.select("#region-main > div > table > tbody > tr.lastrow") :
-                string = i.text.split("\n")
-                string.pop()
-                del string[0]
-                temp2 = (string)
-            if temp1 == [] :
-                continue
-            else :
-                temp1.insert(0, class_name)
-                temp2.insert(0,class_name)
-                if temp1 == temp2 :
-                    assign.append(temp1)
-                    log("Webdriver > Parse > Get Assignment > " + str(temp1))
-                else :
-                    assign.append(temp1)
-                    assign.append(temp2)
-                    log("Webdriver > Parse > Get Assignment > " + str([temp1, temp2]))
+            try :
+                html = driver.page_source
+                soup = BeautifulSoup(html, 'html.parser')
+                data = soup.find("table",{"class":"generaltable"})
+                table_html = str(data)
+                table_df_list = pd.read_html(table_html)
+                table_df_list[0] = table_df_list[0].dropna(how = "any")
+                for j in range(100):
+                    try :
+                        class_title = class_name
+                        title = (table_df_list[0]['주제'][j])
+                        subject = (table_df_list[0]['과제'][j])
+                        deadline = (table_df_list[0]['종료 일시'][j])
+                        check = (table_df_list[0]['제출'][j])
+                        scroe = (table_df_list[0]['성적'][j])
+                        assign.append([class_title, title, subject, deadline, check, scroe])
+                    except Exception as e:
+                        j += 1
+            except Exception as e :
+                pass
+                # print(e)
         
         # Call Assign Window
         self.assignment = AssignWindow()
@@ -724,26 +716,26 @@ class AssignWindow(QMainWindow, ui_assign):
             item.setText(_translate("MainWindow", str(i)))
 
         item = self.assign_tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "강의 이름"))
+        item.setText(_translate("MainWindow", "과목"))
         item = self.assign_tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "주차"))
+        item.setText(_translate("MainWindow", "주제"))
         item = self.assign_tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "과제명"))
+        item.setText(_translate("MainWindow", "과제"))
         item = self.assign_tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "종료일"))
+        item.setText(_translate("MainWindow", "종료 일시"))
         item = self.assign_tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "제출여부"))
+        item.setText(_translate("MainWindow", "제출"))
         item = self.assign_tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "성적"))
         __sortingEnabled = self.assign_tableWidget.isSortingEnabled()
         self.assign_tableWidget.setSortingEnabled(False)
 
-        self.assign_tableWidget.setColumnWidth(0, 135)
-        self.assign_tableWidget.setColumnWidth(1, 170)
+        self.assign_tableWidget.setColumnWidth(0, 170)
+        self.assign_tableWidget.setColumnWidth(1, 160)
         self.assign_tableWidget.setColumnWidth(2, 200)
-        self.assign_tableWidget.setColumnWidth(3, 130)
-        self.assign_tableWidget.setColumnWidth(4, 100)
-        self.assign_tableWidget.setColumnWidth(5, 30)
+        self.assign_tableWidget.setColumnWidth(3, 120)
+        self.assign_tableWidget.setColumnWidth(4, 60)
+        self.assign_tableWidget.setColumnWidth(5, 60)
 
         for i in range(len(assign)):
             for j in range(6):

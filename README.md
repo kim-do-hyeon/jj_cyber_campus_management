@@ -65,3 +65,4 @@
 * 202105120000 - Ver 1.45 Update (Center Sort & Bug fix)
 * 202105130126 - Ver 1.6 Update (Add Deadline function & Bug fix)
 * 202105210055 - Ver 1.62 Update (Add user count)
+* 202109230958 - Ver 2.0 Update (사이버캠퍼스 업데이트에 따른 코드 수정 및 기능 추가)

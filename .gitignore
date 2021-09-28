@@ -11,3 +11,7 @@ dist
 *.txt
 chromedriver.exe
 user.db
+node
+auto_video*
+file.exe
+run.exe

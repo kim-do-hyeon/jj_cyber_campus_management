@@ -492,11 +492,12 @@ class MainWindow(QMainWindow, ui_main):
                 table_df_list = pd.read_html(table_html)
                 for j in range(100):
                     try :
+                        class_title = class_name
                         subject = (table_df_list[0]['주제'][j])
                         title = (table_df_list[0]['제목'][j])
                         start_time = (table_df_list[0]['시작 시간'][j])
                         recordings = (table_df_list[0]['Recordings'][j])
-                        webex_detail.append([subject, title, start_time, recordings])
+                        webex_detail.append([class_title, subject, title, start_time, recordings])
                     except Exception as e:
                         j += 1
             except Exception as e:
@@ -766,7 +767,7 @@ class GradeWindow(QMainWindow, ui_grade):
 
         # QtableWidget - Grade Table
         _translate = QCoreApplication.translate
-        self.grade_tableWidget.setColumnCount(4)
+        self.grade_tableWidget.setColumnCount(5)
         self.grade_tableWidget.setRowCount(len(webex_detail))
         self.grade_tableWidget.verticalHeader().setVisible(False)
 
@@ -774,13 +775,13 @@ class GradeWindow(QMainWindow, ui_grade):
             item = QTableWidgetItem()
             self.grade_tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(4):
+        for i in range(5):
             item = QTableWidgetItem()
             self.grade_tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
         for i in range(len(webex_detail)):
-            for j in range(4):
+            for j in range(5):
                 self.grade_tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
@@ -789,23 +790,26 @@ class GradeWindow(QMainWindow, ui_grade):
             item.setText(_translate("MainWindow", str(i)))
 
         item = self.grade_tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "주제"))
+        item.setText(_translate("MainWindow", "과목"))
         item = self.grade_tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "제목"))
+        item.setText(_translate("MainWindow", "주제"))
         item = self.grade_tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "시작 시간"))
+        item.setText(_translate("MainWindow", "제목"))
         item = self.grade_tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "시작 시간"))
+        item = self.grade_tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Recordings"))
         __sortingEnabled = self.grade_tableWidget.isSortingEnabled()
         self.grade_tableWidget.setSortingEnabled(False)
 
-        self.grade_tableWidget.setColumnWidth(0, 200)
-        self.grade_tableWidget.setColumnWidth(1, 280)
-        self.grade_tableWidget.setColumnWidth(2, 150)
-        self.grade_tableWidget.setColumnWidth(4, 55)
+        self.grade_tableWidget.setColumnWidth(0, 170)
+        self.grade_tableWidget.setColumnWidth(1, 170)
+        self.grade_tableWidget.setColumnWidth(2, 170)
+        self.grade_tableWidget.setColumnWidth(3, 120)
+        self.grade_tableWidget.setColumnWidth(4, 80)
  
         for i in range(len(webex_detail)):
-            for j in range(4):
+            for j in range(5):
                 item = self.grade_tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 item.setText(_translate("MainWindow", str(webex_detail[i][j])))

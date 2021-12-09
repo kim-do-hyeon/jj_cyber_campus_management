@@ -37,24 +37,60 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
-# Check Chrome Version
-try :
-    try :
-        chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
-    except :
-        chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
-    log("Chrome browser is installed.")
-    chrome_check = 1
-except :
-    log("Chrome browser is not installed.")
-    chrome_check = 0
-
-# Check chromedriver is exist
-fileObj = Path("chromedriver.exe")
-if fileObj.is_file() == True :
-    check = 1
+# Check Os
+import platform
+global check_os
+check_os = platform.system()
+if check_os == "Darwin" :
+    check_os = "Mac"
+elif check_os == "Linux" : 
+    check_os = "Linux"
+elif check_os == "Windows" :
+    check_os = "Windows"
 else :
-    check = 0
+    check_os = "Error"
+
+# Check Chrome Version
+global chrome_vesrion
+if check_os == "Mac" :
+    try :
+        # chrome_vesrion = os.popen("/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version").read()
+        # chrome_vesrion = (chrome_vesrion[14:16])
+        chrome_check = 1
+    except :
+        chrome_check = 0
+    fileObj = Path("/usr/local/bin/chromedriver")
+    if fileObj.is_file() == True :
+        check = 1
+    else :
+        check = 0
+elif check_os == "Windows" :
+    try :
+        try :
+            chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+        except :
+            chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
+        chrome_check = 1
+    except :
+        chrome_check = 0
+    fileObj = Path("chromedriver.exe")
+    if fileObj.is_file() == True :
+        check = 1
+    else :
+        check = 0
+elif check_os == "Linux" :
+    try :
+        chrome_version = os.popen("google-chrome --version").read()
+        chrome_version = (chrome_version[14:16])
+        chrome_check = 1
+    except :
+        chrome_check = 0
+    fileObj = Path("chromedriver")
+    if fileObj.is_file() == True :
+        check = 1
+    else :
+        check = 0
+
 
 # Auto login Check Function
 def auto_login(student_id, student_pw):
@@ -82,36 +118,19 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
-            if chrome_version == '94' :
-                chrome_version_94 = 'https://chromedriver.storage.googleapis.com/94.0.4606.41/chromedriver_win32.zip'
-                download(chrome_version_94, "chromedriver.zip")
-                log("Download Chromedriver Version 94")
+            if chrome_version == '96' :
+                chrome_version_96 = 'https://chromedriver.storage.googleapis.com/index.html?path=96.0.4664.45/chromedriver_win32.zip'
+                download(chrome_version_96, "chromedriver.zip")
+                log("Download Chromedriver Version 96")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
                 log("Unziped Chromedriver.zip")
-            if chrome_version == '93' :
-                chrome_version_93 = 'http://chromedriver.storage.googleapis.com/93.0.4577.15/chromedriver_win32.zip'
-                download(chrome_version_93, "chromedriver.zip")
-                log("Download Chromedriver Version 93")
+            if chrome_version == '97' :
+                chrome_version_97 = 'https://chromedriver.storage.googleapis.com/index.html?path=97.0.4692.36/chromedriver_win32.zip'
+                download(chrome_version_97, "chromedriver.zip")
+                log("Download Chromedriver Version 97")
                 zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
                 log("Unziped Chromedriver.zip")
-            if chrome_version == '92' :
-                chrome_version_92 = 'https://chromedriver.storage.googleapis.com/92.0.4515.43/chromedriver_win32.zip'
-                download(chrome_version_92, "chromedriver.zip")
-                log("Download Chromedriver Version 92")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            if chrome_version == '91' :
-                chrome_version_91 = 'https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_win32.zip'
-                download(chrome_version_91, "chromedriver.zip")
-                log("Download Chromedriver Version 91")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            if chrome_version == '90' :
-                chrome_version_90 = 'https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_win32.zip'
-                download(chrome_version_90, "chromedriver.zip")
-                log("Download Chromedriver Version 90")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
+
         elif check == 1 :
             log("Chromedriver is installed")
         
@@ -158,16 +177,35 @@ class LoginWindow(QMainWindow, ui):
             log("Login > School Password is blank")
         else : # login
             log("Login > Try Login")
-            args = ["hide_console", ]
-            options = webdriver.ChromeOptions()
-            options.add_argument('headless')
-            options.add_argument('window-size=1920x1080')
-            options.add_argument("disable-gpu")
-            log("Webdriver > headless, window-size=1920x1080, disable-gpu options")
             global driver
-            try : 
+            if check_os == "Windows" :
+                ''' Windows '''
+                args = ["hide_console", ]
+                options = webdriver.ChromeOptions()
+                options.add_argument('headless')
+                options.add_argument('window-size=1920x1080')
+                options.add_argument("disable-gpu")
                 driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
                 # driver = webdriver.Chrome('chromedriver.exe') # Run chromedriver.exe
+            elif check_os == "Linux" :
+                ''' Linux '''
+                cwd = os.getcwd() + "/chromedriver"
+                print(cwd)
+                chrome_options = webdriver.ChromeOptions()
+                chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--no-sandbox')
+                chrome_options.add_argument('--disable-dev-shm-usage')
+                driver = webdriver.Chrome(executable_path=cwd,chrome_options=chrome_options)
+            elif check_os == "Mac" :
+                ''' Mac '''
+                args = ["hide_console", ]
+                options = webdriver.ChromeOptions()
+                options.add_argument('headless')
+                options.add_argument('window-size=1920x1080')
+                options.add_argument("disable-gpu")
+                driver = webdriver.Chrome('/usr/local/bin/chromedriver', service_args=args, chrome_options=options)
+            
+            try : 
                 log("Webdriver > Try to run Chrome")
                 QMessageBox.information(self, 'Notice', '모든 강의를 확인하기 때문에 시간이 소요될수 있습니다.', QMessageBox.Ok, QMessageBox.Ok)
             except :

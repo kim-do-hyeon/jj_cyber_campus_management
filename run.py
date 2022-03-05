@@ -1,11 +1,9 @@
 # Call Module
 import os
-import re
 import sys
 import sqlite3
 import zipfile
 from bs4 import BeautifulSoup
-from numpy import nan
 from selenium import webdriver
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
@@ -41,9 +39,7 @@ log("*** Start Program ***")
 import platform
 global check_os
 check_os = platform.system()
-if check_os == "Darwin" :
-    check_os = "Mac"
-elif check_os == "Linux" : 
+if check_os == "Linux" : 
     check_os = "Linux"
 elif check_os == "Windows" :
     check_os = "Windows"
@@ -52,19 +48,7 @@ else :
 
 # Check Chrome Version
 global chrome_vesrion
-if check_os == "Mac" :
-    try :
-        # chrome_vesrion = os.popen("/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version").read()
-        # chrome_vesrion = (chrome_vesrion[14:16])
-        chrome_check = 1
-    except :
-        chrome_check = 0
-    fileObj = Path("/usr/local/bin/chromedriver")
-    if fileObj.is_file() == True :
-        check = 1
-    else :
-        check = 0
-elif check_os == "Windows" :
+if check_os == "Windows" :
     try :
         try :
             chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
@@ -196,14 +180,6 @@ class LoginWindow(QMainWindow, ui):
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
                 driver = webdriver.Chrome(executable_path=cwd,chrome_options=chrome_options)
-            elif check_os == "Mac" :
-                ''' Mac '''
-                args = ["hide_console", ]
-                options = webdriver.ChromeOptions()
-                options.add_argument('headless')
-                options.add_argument('window-size=1920x1080')
-                options.add_argument("disable-gpu")
-                driver = webdriver.Chrome('/usr/local/bin/chromedriver', service_args=args, chrome_options=options)
             
             try : 
                 log("Webdriver > Try to run Chrome")
@@ -213,7 +189,7 @@ class LoginWindow(QMainWindow, ui):
                 log("Webdriver > Does not exist chromedriver.exe")
                 return
             
-            class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php"
+            class_url = "https://cyber.jj.ac.kr/local/ubion/user/index.php?year=2022&semester=10"
             login_url = "https://cyber.jj.ac.kr/login.php"
 
             student_id = (self.login_id.text())
@@ -232,7 +208,7 @@ class LoginWindow(QMainWindow, ui):
             log("Webdriver > Access Url > https://cyber.jj.ac.kr/local/ubion/user/index.php")
 
             html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
+            soup = BeautifulSoup(html, 'lxml')
 
             # Get Class Course Name
             log("*** Get Class Course Name ***")
@@ -291,12 +267,12 @@ class LoginWindow(QMainWindow, ui):
                     driver.get(class_process_url)
                     log("Webdriver > Access Url > " + str(class_process_url))
                     html = driver.page_source
-                    soup = BeautifulSoup(html, 'html.parser')
+                    soup = BeautifulSoup(html, 'lxml')
 
                     time_url = "https://cyber.jj.ac.kr/course/view.php?id=" + class_id[i]
                     driver.get(time_url)
                     html_time = driver.page_source
-                    soup_time = BeautifulSoup(html_time, 'html.parser')
+                    soup_time = BeautifulSoup(html_time, 'lxml')
                     deadline = soup_time.find_all(class_="text-ubstrap")
                     try :
                         data = soup.find("table",{"class":"table table-bordered user_progress table-coursemos"})
@@ -368,7 +344,6 @@ class MainWindow(QMainWindow, ui_main):
         self.message_button.clicked.connect(self.message)
         self.assign_button.clicked.connect(self.assign)
         self.grade_button.clicked.connect(self.grade)
-        self.error_send.clicked.connect(self.error)
         self.exit_button.clicked.connect(self.exit)
 
         # Logo
@@ -381,29 +356,25 @@ class MainWindow(QMainWindow, ui_main):
         log("Webdriver > Access Url > " + str(get_user_url))
         
         html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'lxml')
 
         # Get School User ID
-        school_id = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(1) > td"))
-        regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
+        school_id = driver.find_element_by_xpath('//*[@id="ubcompletion-progress-wrapper"]/div[1]/table/tbody/tr[1]/td').text
         global user_school_id
-        user_school_id = regex.findall(school_id)[0]
+        user_school_id = school_id
         self.school_number_line.setText(str(user_school_id))
         log("Webdriver > Get Informtaion > " + str(user_school_id))
 
         # Get User Name
-        name = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(2) > td"))
-        regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
         global user_name
-        user_name = regex.findall(name)[0]
+        user_name = driver.find_element_by_xpath('//*[@id="ubcompletion-progress-wrapper"]/div[1]/table/tbody/tr[2]/td').text
         self.name_line.setText(str(user_name))
         log("Webdriver > Get Informtaion > " + str(user_name))
 
         # Get User Phone Number
-        phone_number = str(soup.select("#ubcompletion-progress-wrapper > div:nth-child(1) > table > tbody > tr:nth-child(3) > td"))
-        regex = re.compile('{}(.*){}'.format(re.escape('<td class="text-left">'), re.escape('</td>')))
+        phone_number = driver.find_element_by_xpath('//*[@id="ubcompletion-progress-wrapper"]/div[1]/table/tbody/tr[3]/td').text
         global user_phone_number
-        user_phone_number = regex.findall(phone_number)[0]
+        user_phone_number = phone_number
         self.phone_number_line.setText(str(user_phone_number))
         log("Webdriver > Get Informtaion > " + str(user_phone_number))
 
@@ -487,7 +458,7 @@ class MainWindow(QMainWindow, ui_main):
             log("Webdriver > Access Url > " + str(class_assign_url))
             try :
                 html = driver.page_source
-                soup = BeautifulSoup(html, 'html.parser')
+                soup = BeautifulSoup(html, 'lxml')
                 data = soup.find("table",{"class":"generaltable"})
                 table_html = str(data)
                 table_df_list = pd.read_html(table_html)
@@ -523,7 +494,7 @@ class MainWindow(QMainWindow, ui_main):
             driver.get(webexactivity)
             log("Webdriver > Access Url > " + str(webexactivity))
             html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
+            soup = BeautifulSoup(html, 'lxml')
             try :
                 data = soup.find("table",{"class":"generaltable"})
                 table_html = str(data)
@@ -580,11 +551,6 @@ class MainWindow(QMainWindow, ui_main):
         except :
             QMessageBox.warning(self, '오류', '메시지를 불러오는데 오류가 발생하였습니다.', QMessageBox.Ok, QMessageBox.Ok)
 
-    # Call Error Window
-    def error(self) :
-        self.error_window = ErrorWindow()
-        self.error_window.show()
-
     def class_ItemDoubleClicked(self) :
         log("DoubleClick > Class Detail")
         row = self.class_listWidget.currentRow()
@@ -597,11 +563,11 @@ class MainWindow(QMainWindow, ui_main):
         driver.get(class_process_url)
         log("Webdriver > Access Url > " + str(class_process_url))
         html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'lxml')
         time_url = "https://cyber.jj.ac.kr/course/view.php?id=" + class_number
         driver.get(time_url)
         html_time = driver.page_source
-        soup_time = BeautifulSoup(html_time, 'html.parser')
+        soup_time = BeautifulSoup(html_time, 'lxml')
         deadline = soup_time.find_all(class_="text-ubstrap")
         
         try :
@@ -657,7 +623,7 @@ class MessageWindow(QMainWindow, ui_message):
         driver.get(notice_url) # Open Notice Page
         log("Webdriver > Access Url > https://cyber.jj.ac.kr/local/ubnotification/")
         html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'lxml')
 
         # Notice Value Url
         temp = str(soup.find_all(class_="well wellnopadding"))
@@ -703,7 +669,7 @@ class MessageWindow(QMainWindow, ui_message):
         driver.get(get_notice_url)
         log("DoubleClick > Notice > " + str([notice_value[self.notice_listWidget.currentRow()][0], notice_value[self.notice_listWidget.currentRow()][1], notice_value[self.notice_listWidget.currentRow()][2], notice_value[self.notice_listWidget.currentRow()][3]]))
         html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'lxml')
         title = self.notice_listWidget.currentItem().text()
         message = "작성시간 : " + str(notice_value[self.notice_listWidget.currentRow()][1]) + "\n"  + str(notice_value[self.notice_listWidget.currentRow()][2])
         QMessageBox.information(self, title, message, QMessageBox.Ok, QMessageBox.Ok)
@@ -853,122 +819,6 @@ class GradeWindow(QMainWindow, ui_grade):
     def exit(self) :
         log("*** Exit Grade Window ***")
         self.close()
-
-# Call ui(error.ui) File
-ui_error_path = "src/error.ui"
-ui_error = uic.loadUiType(ui_error_path)[0]
-
-# Call Gui Enviroment (Error Window)
-class ErrorWindow(QMainWindow, ui_error):
-    def __init__(self):
-        log("*** Open Error Report Window ***")
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowIcon(QIcon('src\icon.ico'))
-
-        # Button
-        self.send_button.clicked.connect(self.send)
-        self.include_button.clicked.connect(self.error_file_select)
-
-        # radio
-        self.writer_open_radio.clicked.connect(self.groupboxRadFunction)
-        self.writer_close_radio.clicked.connect(self.groupboxRadFunction)
-    
-    def groupboxRadFunction(self) :
-        global Disclosure_status
-        if self.writer_open_radio.isChecked() :
-            Disclosure_status = 1
-            log("Error Report > Disclosure_status = 1")
-        elif self.writer_close_radio.isChecked() :
-            Disclosure_status = 0
-            log("Error Report > Disclosure_status = 0")
-
-    # Path Select 
-    def error_file_select(self) :
-        try:
-            log("Error Report > Include File > Try")
-            dialog = QFileDialog()
-            global file_path
-            file_filter = 'All files (*.*)'
-            file_path = QFileDialog.getOpenFileName(self, 'Select File', filter=file_filter)
-            file_path = file_path[0]
-            self.file_label.setText(str(file_path))
-            log("Error Report > Include File > " + file_path)
-        except :
-            log("Error Report > Include File > Fail")
-            QMessageBox.information(self, "오류제보", "Error", QMessageBox.Ok, QMessageBox.Ok)
-
-    # Mail Send Function
-    def send(self) :
-        from requests import get
-        import socket
-        import re, uuid
-        User_Host_Name = socket.gethostname()
-        User_IP_Internal = socket.gethostbyname(socket.gethostname())
-        User_IP_External = get("https://api.ipify.org").text
-        User_Mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
-        User_Computer_Information = "Information : " + str([User_Host_Name, User_IP_Internal, User_IP_External, User_Mac])
-
-        log("Error Report > Send > Try")
-        title = self.title_message.toPlainText()
-        if title == "" :
-            QMessageBox.information(self, "오류제보", "제목을 입력해주세요.", QMessageBox.Ok, QMessageBox.Ok)
-            log("Error Report > Send > Blank Title")
-            return
-        content = str(self.content_message.toPlainText())
-        if content == "" :
-            QMessageBox.information(self, "오류제보", "내용을 입력해주세요.", QMessageBox.Ok, QMessageBox.Ok)
-            log("Error Report > Send > Blank Content")
-            return
-        
-        try :
-            if Disclosure_status == 1:
-                contact = "작성자 공개 : " + str([user_school_id, user_name, user_phone_number])
-            else :
-                contact = "작성자 공개 : 익명"
-        except :
-            QMessageBox.information(self, "오류제보", "작성자 공개 여부를 체크해주세요.", QMessageBox.Ok, QMessageBox.Ok)
-            log("Error Report > Send > Error Disclosure_status")
-            return
-
-        user_contact = "연락쳐 : " + str(self.contact_message.toPlainText())
-        if user_contact == "" :
-            user_contact = "연락쳐 : 익명"
-        
-        content = content + "\n\n=====================================\n\n" + str(contact) + "\n\n" + str(user_contact) + "\n\n" + str(User_Computer_Information)
-
-        try :
-            import smtplib
-            from email.mime.text import MIMEText
-            from email.mime.multipart import MIMEMultipart
-            from email.mime.base import MIMEBase
-            from email import encoders
-            s = smtplib.SMTP('smtp.gmail.com', 587)
-            s.starttls()
-            s.login('pental.system32@gmail.com', 'emwqpqjkhjbeoern')
-            msg = MIMEMultipart()
-            msg['Subject'] = title
-            msg.attach(MIMEText(content, 'plain'))
-            try :
-                #File Upload
-                attachment = open(file_path, 'rb')
-                part = MIMEBase('application', 'octet-stream')
-                part.set_payload((attachment).read())
-                encoders.encode_base64(part)
-                file_name = file_path.split("/")[-1]
-                part.add_header('Content-Disposition', "attachment; filename= " + file_name)
-                msg.attach(part)
-            except :
-                pass
-            s.sendmail("pental.system32@gmail.com", "pental@kakao.com", msg.as_string())
-            s.quit()
-            log("Error Report > Send > Success")
-            QMessageBox.information(self, "오류제보", "오류제보가 정상적으로 처리되었습니다.", QMessageBox.Ok, QMessageBox.Ok)
-        except :
-            log("Error Report > Send > Fail")
-            QMessageBox.information(self, "오류제보", "문제가 발생하였습니다.", QMessageBox.Ok, QMessageBox.Ok)
-
-
 
 # Call ui(select_class.ui) File
 ui_select_class_path = "src/select_class.ui"

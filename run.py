@@ -343,7 +343,7 @@ class MainWindow(QMainWindow, ui_main):
         # Button
         self.message_button.clicked.connect(self.message)
         self.assign_button.clicked.connect(self.assign)
-        self.grade_button.clicked.connect(self.grade)
+        self.video_chat_button.clicked.connect(self.video_chat)
         self.exit_button.clicked.connect(self.exit)
 
         # Logo
@@ -483,7 +483,7 @@ class MainWindow(QMainWindow, ui_main):
         self.assignment.show()
 
     # Call Video Chat Function
-    def grade(self):
+    def video_chat(self):
         log("*** Get Video Chat ***")
         QMessageBox.information(self, "화상강의 확인", "화상강의를 확인하는데 시간이 소요될수 있습니다.", QMessageBox.Ok, QMessageBox.Ok)
         global webex_detail
@@ -540,8 +540,8 @@ class MainWindow(QMainWindow, ui_main):
             # except :
             #     pass
         # Call Grade Window
-        self.grade = GradeWindow()
-        self.grade.show()
+        self.video_chat = Video_Chat_Window()
+        self.video_chat.show()
 
     # Call New Message Window
     def message(self):
@@ -753,14 +753,14 @@ class AssignWindow(QMainWindow, ui_assign):
         log("*** Exit Assignment Window ***")
         self.close()
 
-# Call ui(grade.ui) File
-ui_grade_path = "src/grade.ui"
-ui_grade = uic.loadUiType(ui_grade_path)[0]
+# Call ui(video_chat.ui) File
+ui_video_chat_path = "src/video_chat.ui"
+ui_video = uic.loadUiType(ui_video_chat_path)[0]
 
-# Call Gui Enviroment (Grade Window)
-class GradeWindow(QMainWindow, ui_grade):
+# Call Gui Enviroment (Video Chat Window)
+class Video_Chat_Window(QMainWindow, ui_video):
     def __init__(self):
-        log("*** Open Grade Window ***")
+        log("*** Open Video Chat Window ***")
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('src\icon.ico'))
@@ -815,9 +815,9 @@ class GradeWindow(QMainWindow, ui_grade):
                 item.setText(_translate("MainWindow", str(webex_detail[i][j])))
         self.grade_tableWidget.setSortingEnabled(__sortingEnabled)
     
-    # Exit Function (Close Grade Window)
+    # Exit Function (Close Video Chat Window)
     def exit(self) :
-        log("*** Exit Grade Window ***")
+        log("*** Exit Video Chat Window ***")
         self.close()
 
 # Call ui(select_class.ui) File
@@ -897,7 +897,7 @@ class SelectClass(QMainWindow, ui_select_class):
         delegate = AlignDelegate(self.tableWidget)
         self.tableWidget.setItemDelegate(delegate)
     
-    # Exit Function (Close Grade Window)
+    # Exit Function (Close Select Class Window)
     def exit(self) :
         log("*** Exit Select Class Window ***")
         self.close()

@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>JJ Cyber Campus</string>
+   <string>Cyber Campus Manage Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLineEdit" name="login_id">

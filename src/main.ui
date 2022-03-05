@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Cyber Campus Manage Tool</string>
+   <string>Cyber Campus Manage Tool - Made by PENAL (pental@kakao.com)</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QListWidget" name="class_listWidget">
@@ -239,20 +239,7 @@
      <string>종료</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="error_send">
-    <property name="geometry">
-     <rect>
-      <x>1100</x>
-      <y>470</y>
-      <width>81</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>오류제보</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="grade_button">
+   <widget class="QPushButton" name="video_chat_button">
     <property name="geometry">
      <rect>
       <x>1100</x>
@@ -265,7 +252,7 @@
      <string>화상강의</string>
     </property>
    </widget>
-   <widget class="QLabel" name="grade_label">
+   <widget class="QLabel" name="video_chat_label">
     <property name="geometry">
      <rect>
       <x>1100</x>

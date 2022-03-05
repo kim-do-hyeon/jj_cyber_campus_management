@@ -46,7 +46,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>성적 현황</string>
+     <string>화상 강의 현황</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

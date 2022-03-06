@@ -564,7 +564,6 @@ class MainWindow(QMainWindow, ui_main):
         html_time = driver.page_source
         soup_time = BeautifulSoup(html_time, 'lxml')
         deadline = soup_time.find_all(class_="text-ubstrap")
-        
         try :
             data = soup.find("table",{"class":"table table-bordered user_progress table-coursemos"})
             table_html = str(data)
@@ -580,7 +579,7 @@ class MainWindow(QMainWindow, ui_main):
                     check = (table_df_list[0]['진도율'][j])
                     if check == "-" :
                         check = "X"
-                    deadline_txt = str(deadline[j-1])[50:61]
+                    deadline_txt = str(deadline[j])[50:61]
                     
                     class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
                 except Exception as e:

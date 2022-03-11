@@ -297,6 +297,9 @@ class LoginWindow(QMainWindow, ui):
                                         date_diff = "Timeout"
                                 except :
                                     date_diff = "Error"
+                                
+                                if date_diff == "Timeout" and check == "100%" :
+                                    date_diff = "수강완료"
                                 class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
                             except Exception as e:
                                 j += 1

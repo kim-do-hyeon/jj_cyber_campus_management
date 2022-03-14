@@ -51,9 +51,11 @@ global chrome_vesrion
 if check_os == "Windows" :
     try :
         try :
-            chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0][:2]
+            chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0]
+            log("Chrome Version : " + str(chrome_version))
         except :
-            chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0][:2]
+            chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0]
+            log("Chrome Version : " + str(chrome_version))
         chrome_check = 1
     except :
         chrome_check = 0
@@ -102,18 +104,11 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
-            if chrome_version == '96' :
-                chrome_version_96 = 'https://chromedriver.storage.googleapis.com/index.html?path=96.0.4664.45/chromedriver_win32.zip'
-                download(chrome_version_96, "chromedriver.zip")
-                log("Download Chromedriver Version 96")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
-            if chrome_version == '97' :
-                chrome_version_97 = 'https://chromedriver.storage.googleapis.com/index.html?path=97.0.4692.36/chromedriver_win32.zip'
-                download(chrome_version_97, "chromedriver.zip")
-                log("Download Chromedriver Version 97")
-                zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-                log("Unziped Chromedriver.zip")
+            chrome_version_url = 'https://chromedriver.storage.googleapis.com/' + chrome_version + '/chromedriver_win32.zip'
+            download(chrome_version_url, "chromedriver.zip")
+            log("Download Chromedriver Version " + chrome_version)
+            zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
+            log("Unziped Chromedriver.zip")
 
         elif check == 1 :
             log("Chromedriver is installed")
@@ -302,6 +297,9 @@ class LoginWindow(QMainWindow, ui):
                                         date_diff = "Timeout"
                                 except :
                                     date_diff = "Error"
+                                
+                                if date_diff == "Timeout" and check == "100%" :
+                                    date_diff = "수강완료"
                                 class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
                             except Exception as e:
                                 j += 1
@@ -569,7 +567,6 @@ class MainWindow(QMainWindow, ui_main):
         html_time = driver.page_source
         soup_time = BeautifulSoup(html_time, 'lxml')
         deadline = soup_time.find_all(class_="text-ubstrap")
-        
         try :
             data = soup.find("table",{"class":"table table-bordered user_progress table-coursemos"})
             table_html = str(data)
@@ -585,7 +582,7 @@ class MainWindow(QMainWindow, ui_main):
                     check = (table_df_list[0]['진도율'][j])
                     if check == "-" :
                         check = "X"
-                    deadline_txt = str(deadline[j-1])[50:61]
+                    deadline_txt = str(deadline[j])[50:61]
                     
                     class_detail_select.append([class_name, title, need_time, my_time, deadline_txt, check])
                 except Exception as e:

@@ -33,21 +33,16 @@ log("*** Start Program ***")
 # Check Chrome Version
 global chrome_vesrion
 try :
-    try :
-        chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0]
-        log("Chrome Version : " + str(chrome_version))
-    except :
-        chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0]
-        log("Chrome Version : " + str(chrome_version))
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+    driver_path = f'./{chrome_ver}/chromedriver.exe'
     chrome_check = 1
 except :
     chrome_check = 0
 
-fileObj = Path("chromedriver.exe")
-if fileObj.is_file() == True :
-    check = 1
-else :
-    check = 0
+for path, dirs, files in os.walk(os.getcwd()):
+    for file in files:
+        if file == 'chromedriver.exe' :
+            check = 1
 
 
 # Auto login Check Function

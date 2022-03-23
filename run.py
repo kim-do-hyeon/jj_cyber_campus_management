@@ -14,12 +14,7 @@ from requests import get
 from pathlib import Path
 import pandas as pd
 from datetime import datetime
-
-# File Download Function
-def download(url, file_name):
-    with open(file_name, "wb") as file:
-        response = get(url)
-        file.write(response.content)
+import chromedriver_autoinstaller
 
 # Log Timestamp Function
 def timestamp():
@@ -47,6 +42,7 @@ try :
     chrome_check = 1
 except :
     chrome_check = 0
+
 fileObj = Path("chromedriver.exe")
 if fileObj.is_file() == True :
     check = 1
@@ -72,7 +68,7 @@ ui = uic.loadUiType(ui_path)[0]
 class LoginWindow(QMainWindow, ui):
     def __init__(self):
         super().__init__()
-
+        global driver_path
         # Download Chromedriver
         if chrome_check == 0 :
             QMessageBox.information(self, 'Chrome Browser', '크롬 브라우져를 설치해주세요.', QMessageBox.Ok, QMessageBox.Ok)
@@ -80,11 +76,13 @@ class LoginWindow(QMainWindow, ui):
         if check == 0 :
             QMessageBox.information(self, 'ChromeDriver', '필요한 프로그램을 다운받습니다.', QMessageBox.Ok, QMessageBox.Ok)
             log("Download Chromedriver")
-            chrome_version_url = 'https://chromedriver.storage.googleapis.com/' + chrome_version + '/chromedriver_win32.zip'
-            download(chrome_version_url, "chromedriver.zip")
-            log("Download Chromedriver Version " + chrome_version)
-            zipfile.ZipFile('chromedriver.zip').extract('chromedriver.exe')
-            log("Unziped Chromedriver.zip")
+            chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+            driver_path = f'./{chrome_ver}/chromedriver.exe'
+            if os.path.exists(driver_path):
+                log(f"chrom driver is insatlled: {driver_path}")
+            else:
+                log(f"install the chrome driver(ver: {chrome_ver})")
+                chromedriver_autoinstaller.install(True)
 
         elif check == 1 :
             log("Chromedriver is installed")
@@ -124,6 +122,7 @@ class LoginWindow(QMainWindow, ui):
         self.login()
     # Login Function
     def login(self) :
+        global driver_path
         if self.login_id.text() == "" : # school id is blank
             QMessageBox.information(self, '로그인', '학번을 입력해주세요.', QMessageBox.Ok, QMessageBox.Ok)
             log("Login > School id is blank")
@@ -139,7 +138,7 @@ class LoginWindow(QMainWindow, ui):
             options.add_argument('headless')
             options.add_argument('window-size=1920x1080')
             options.add_argument("disable-gpu")
-            driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
+            driver = webdriver.Chrome(driver_path, service_args=args, chrome_options=options) # Run chromedriver.exe
             # driver = webdriver.Chrome('chromedriver.exe') # Run chromedriver.exe
             
             try : 

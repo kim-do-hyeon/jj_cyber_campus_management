@@ -412,6 +412,10 @@ class MainWindow(QMainWindow, ui_main):
         delegate = AlignDelegate(self.tableWidget)
         self.tableWidget.setItemDelegate(delegate)
 
+    def closeEvent(self, event):
+        log("*** Exit Program ***")
+        driver.close()
+
     # Call Assign Function
     def assign(self):
         log("*** Get Assignment ***")

@@ -242,6 +242,7 @@ class LoginWindow(QMainWindow, ui):
                         table_df_list[0] = table_df_list[0].dropna(how = "any")
                         for j in range(100):
                             try :
+                                week = str(table_df_list[0]['주제'][j]) + "주차"
                                 title = (table_df_list[0]['강의 자료'][j])
                                 need_time = (table_df_list[0]['콘텐츠 길이'][j])
                                 my_time = (table_df_list[0]['최대 학습위치'][j][:-8])
@@ -266,7 +267,7 @@ class LoginWindow(QMainWindow, ui):
                                 
                                 if date_diff == "Timeout" and check == "100%" :
                                     date_diff = "수강완료"
-                                class_detail.append([class_name, title, need_time, my_time, deadline_txt, date_diff, check])
+                                class_detail.append([week, class_name, title, need_time, my_time, deadline_txt, date_diff, check])
                             except Exception as e:
                                 j += 1
                     except :
@@ -347,20 +348,20 @@ class MainWindow(QMainWindow, ui_main):
 
         # QtableWidget - Class Table
         _translate = QCoreApplication.translate
-        self.tableWidget.setColumnCount(7)
+        self.tableWidget.setColumnCount(8)
         self.tableWidget.setRowCount(len(class_detail))
 
         for i in range(len(class_detail)):
             item = QTableWidgetItem()
             self.tableWidget.setVerticalHeaderItem(i, item)
 
-        for i in range(7):
+        for i in range(8):
             item = QTableWidgetItem()
             self.tableWidget.setHorizontalHeaderItem(i, item)
         item = QTableWidgetItem()
 
         for i in range(len(class_detail)):
-            for j in range(7):
+            for j in range(8):
                 self.tableWidget.setItem(i, j, item)
                 item = QTableWidgetItem()
 
@@ -369,32 +370,35 @@ class MainWindow(QMainWindow, ui_main):
             item.setText(_translate("MainWindow", str(i)))
 
         item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "강의 이름"))
+        item.setText(_translate("MainWindow", "주차"))
         item = self.tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "강의 제목"))
+        item.setText(_translate("MainWindow", "강의 이름"))
         item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "인정 시간"))
+        item.setText(_translate("MainWindow", "강의 제목"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "들은 시간"))
+        item.setText(_translate("MainWindow", "인정 시간"))
         item = self.tableWidget.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "마감일"))
+        item.setText(_translate("MainWindow", "들은 시간"))
         item = self.tableWidget.horizontalHeaderItem(5)
-        item.setText(_translate("MainWindow", "잔여"))
+        item.setText(_translate("MainWindow", "마감일"))
         item = self.tableWidget.horizontalHeaderItem(6)
+        item.setText(_translate("MainWindow", "잔여"))
+        item = self.tableWidget.horizontalHeaderItem(7)
         item.setText(_translate("MainWindow", "통과"))
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
 
-        self.tableWidget.setColumnWidth(0, 200)
-        self.tableWidget.setColumnWidth(1, 300)
-        self.tableWidget.setColumnWidth(2, 65)
+        self.tableWidget.setColumnWidth(0, 50)
+        self.tableWidget.setColumnWidth(1, 200)
+        self.tableWidget.setColumnWidth(2, 250)
         self.tableWidget.setColumnWidth(3, 65)
-        self.tableWidget.setColumnWidth(4, 100)
-        self.tableWidget.setColumnWidth(5, 65)
+        self.tableWidget.setColumnWidth(4, 65)
+        self.tableWidget.setColumnWidth(5, 100)
+        self.tableWidget.setColumnWidth(6, 65)
         self.tableWidget.verticalHeader().setVisible(False)
 
         for i in range(len(class_detail)):
-            for j in range(7):
+            for j in range(8):
                 item = self.tableWidget.item(i, j)
                 item.setFlags(QtCore.Qt.ItemIsEnabled) # Locked Cell
                 if str(class_detail[i][j]) == "미수강" or str(class_detail[i][j]) == "X":

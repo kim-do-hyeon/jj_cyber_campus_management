@@ -39,6 +39,7 @@ try :
 except :
     chrome_check = 0
 
+check = 0
 for path, dirs, files in os.walk(os.getcwd()):
     for file in files:
         if file == 'chromedriver.exe' :
@@ -384,7 +385,7 @@ class MainWindow(QMainWindow, ui_main):
 
         self.tableWidget.setColumnWidth(0, 50)
         self.tableWidget.setColumnWidth(1, 200)
-        self.tableWidget.setColumnWidth(2, 250)
+        self.tableWidget.setColumnWidth(2, 300)
         self.tableWidget.setColumnWidth(3, 65)
         self.tableWidget.setColumnWidth(4, 65)
         self.tableWidget.setColumnWidth(5, 100)

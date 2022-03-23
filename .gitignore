@@ -11,3 +11,5 @@ dist
 *.txt
 chromedriver.exe
 user.db
+run.exe
+*.exe

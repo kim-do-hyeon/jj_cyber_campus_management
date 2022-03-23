@@ -20,3 +20,8 @@
 * 202105210055 - Ver 1.62 Update (Add user count)
 * 202109230958 - Ver 2.0 Update (사이버캠퍼스 업데이트에 따른 코드 수정 및 기능 추가)
 * 202112091302 - Ver 2.1 Update (User can lunch Mac, Linux, Windows)
+* 202203240001 - Ver 2.2 Update (Auto Download Chromedriver & Only USer Windows Platform, Bug fix)
+![image](https://user-images.githubusercontent.com/21982942/159729961-0c80ac81-87fd-413b-8107-d5914637ed62.png)
+![image](https://user-images.githubusercontent.com/21982942/159729982-8eb5ec7a-193f-47d3-820c-e8c3696b9e26.png)
+![image](https://user-images.githubusercontent.com/21982942/159729989-fc562000-ef79-4810-ad7f-2060decf1eb9.png)
+![image](https://user-images.githubusercontent.com/21982942/159729999-20df0ff0-f6ea-43e8-99ca-15effaba5673.png)

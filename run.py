@@ -35,47 +35,23 @@ def log(message):
 log_file = open("log.txt", 'w', -1, 'utf-8')
 log("*** Start Program ***")
 
-# Check Os
-import platform
-global check_os
-check_os = platform.system()
-if check_os == "Linux" : 
-    check_os = "Linux"
-elif check_os == "Windows" :
-    check_os = "Windows"
-else :
-    check_os = "Error"
-
 # Check Chrome Version
 global chrome_vesrion
-if check_os == "Windows" :
+try :
     try :
-        try :
-            chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0]
-            log("Chrome Version : " + str(chrome_version))
-        except :
-            chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0]
-            log("Chrome Version : " + str(chrome_version))
-        chrome_check = 1
+        chrome_version = os.listdir('C:/Program Files (x86)/Google/Chrome/Application/')[0]
+        log("Chrome Version : " + str(chrome_version))
     except :
-        chrome_check = 0
-    fileObj = Path("chromedriver.exe")
-    if fileObj.is_file() == True :
-        check = 1
-    else :
-        check = 0
-elif check_os == "Linux" :
-    try :
-        chrome_version = os.popen("google-chrome --version").read()
-        chrome_version = (chrome_version[14:16])
-        chrome_check = 1
-    except :
-        chrome_check = 0
-    fileObj = Path("chromedriver")
-    if fileObj.is_file() == True :
-        check = 1
-    else :
-        check = 0
+        chrome_version = os.listdir('C:/Program Files/Google/Chrome/Application/')[0]
+        log("Chrome Version : " + str(chrome_version))
+    chrome_check = 1
+except :
+    chrome_check = 0
+fileObj = Path("chromedriver.exe")
+if fileObj.is_file() == True :
+    check = 1
+else :
+    check = 0
 
 
 # Auto login Check Function
@@ -157,24 +133,14 @@ class LoginWindow(QMainWindow, ui):
         else : # login
             log("Login > Try Login")
             global driver
-            if check_os == "Windows" :
-                ''' Windows '''
-                args = ["hide_console", ]
-                options = webdriver.ChromeOptions()
-                options.add_argument('headless')
-                options.add_argument('window-size=1920x1080')
-                options.add_argument("disable-gpu")
-                driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
-                # driver = webdriver.Chrome('chromedriver.exe') # Run chromedriver.exe
-            elif check_os == "Linux" :
-                ''' Linux '''
-                cwd = os.getcwd() + "/chromedriver"
-                print(cwd)
-                chrome_options = webdriver.ChromeOptions()
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--no-sandbox')
-                chrome_options.add_argument('--disable-dev-shm-usage')
-                driver = webdriver.Chrome(executable_path=cwd,chrome_options=chrome_options)
+            ''' Windows '''
+            args = ["hide_console", ]
+            options = webdriver.ChromeOptions()
+            options.add_argument('headless')
+            options.add_argument('window-size=1920x1080')
+            options.add_argument("disable-gpu")
+            driver = webdriver.Chrome('chromedriver.exe', service_args=args, chrome_options=options) # Run chromedriver.exe
+            # driver = webdriver.Chrome('chromedriver.exe') # Run chromedriver.exe
             
             try : 
                 log("Webdriver > Try to run Chrome")
